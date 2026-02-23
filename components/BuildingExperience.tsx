@@ -1,0 +1,151 @@
+"use client";
+
+import { motion, MotionValue, useTransform } from "framer-motion";
+import { BUILDING_PHASES } from "@/data/buildingData";
+import { useEffect, useState } from "react";
+
+interface Props {
+  scrollYProgress: MotionValue<number>;
+}
+
+export default function BuildingExperience({ scrollYProgress }: Props) {
+  return (
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-16">
+      <div className="flex justify-between items-start">
+        {/* Top Left: Diagnostics */}
+        <div className="space-y-4">
+          <PhaseLabel scrollYProgress={scrollYProgress} />
+          <motion.div 
+            className="hud-border p-4 w-64 hidden md:block"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] tracking-widest text-accent-blue font-bold">SYSTEM STATUS</span>
+              <span className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              {["DATA SYNC: OPTIMAL", "CORE TEMP: 24°C", "NETWORK: ENCRYPTED", "LATENCY: 12ms"].map((txt, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-1 h-1 bg-accent-blue/40" />
+                  <span className="text-[8px] tracking-[0.2em] text-accent-light/40 uppercase">{txt}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/5 flex gap-1">
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="h-1 w-full bg-accent-blue/10 overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-accent-blue"
+                    animate={{ width: ["0%", "100%", "0%"] }}
+                    transition={{ duration: 2, delay: i * 0.1, repeat: Infinity }}
+                  />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Top Right: Progress Percent */}
+        <div className="text-right">
+          <motion.div className="font-orbitron text-2xl sm:text-3xl md:text-4xl font-black text-accent-light opacity-20">
+            <ScrollPercent scrollYProgress={scrollYProgress} />
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row justify-end md:justify-between items-center md:items-end w-full">
+        {/* Bottom: Title & Subtitle — centered on mobile, left on desktop */}
+        <div className="w-full max-w-md md:max-w-[85%] sm:max-w-xl mx-auto md:mx-0 text-center md:text-left">
+          <PhaseContent scrollYProgress={scrollYProgress} />
+        </div>
+
+        {/* Bottom Right: Decorative Rail */}
+        <div className="hidden md:flex flex-col items-center gap-4">
+          <div className="h-32 w-[1px] bg-gradient-to-t from-accent-blue to-transparent" />
+          <span className="rotate-90 origin-center text-[10px] tracking-[0.5em] text-accent-blue/50 whitespace-nowrap mb-8 uppercase">
+            N-SETS ENGINEERING
+          </span>
+        </div>
+      </div>
+      
+      {/* Visual Rails / Border accents */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent-blue/20 to-transparent" />
+      <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-accent-white/5 to-transparent" />
+    </div>
+  );
+}
+
+function PhaseLabel({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  
+  useEffect(() => {
+    return scrollYProgress.on("change", (v) => {
+      const idx = BUILDING_PHASES.findIndex(p => v >= p.threshold[0] && v <= p.threshold[1]);
+      if (idx !== -1 && idx !== phaseIndex) setPhaseIndex(idx);
+    });
+  }, [scrollYProgress, phaseIndex]);
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="px-2 py-0.5 border border-accent-blue text-[8px] font-bold text-accent-blue tracking-widest">
+        PHASE {phaseIndex + 1}
+      </span>
+      <span className="text-[10px] tracking-[0.3em] uppercase text-accent-light/40">
+        SCANNING SECTOR
+      </span>
+    </div>
+  );
+}
+
+function ScrollPercent({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  const [percent, setPercent] = useState(0);
+  useEffect(() => {
+    return scrollYProgress.on("change", (v) => setPercent(Math.floor(v * 100)));
+  }, [scrollYProgress]);
+  return <>{percent.toString().padStart(3, '0')}%</>;
+}
+
+function PhaseContent({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  return (
+    <div className="relative h-28 sm:h-32 md:h-40">
+      {BUILDING_PHASES.map((phase, i) => (
+        <PhaseBlock key={i} phase={phase} scrollYProgress={scrollYProgress} />
+      ))}
+    </div>
+  );
+}
+
+function PhaseBlock({ phase, scrollYProgress }: { phase: typeof BUILDING_PHASES[0], scrollYProgress: MotionValue<number> }) {
+  const opacity = useTransform(
+    scrollYProgress,
+    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    [0, 1, 1, 0]
+  );
+  
+  const y = useTransform(
+    scrollYProgress,
+    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    [20, 0, 0, -20]
+  );
+
+  return (
+    <motion.div style={{ opacity, y }} className="absolute inset-0 flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left">
+      <h2 className="text-2xl sm:text-2xl md:text-4xl lg:text-6xl font-black mb-1 sm:mb-2 leading-none uppercase tracking-tighter">
+        {phase.title}
+      </h2>
+      <p className="text-accent-blue text-sm sm:text-sm md:text-lg font-medium tracking-[0.3em] sm:tracking-[0.4em] mb-3 sm:mb-6 uppercase">
+        {phase.subtitle}
+      </p>
+      <div className="flex flex-wrap gap-2 sm:gap-4 justify-center md:justify-start">
+        {phase.details?.map((detail, idx) => (
+          <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-1 h-1 bg-accent-blue shrink-0" />
+            <span className="text-[9px] sm:text-[10px] tracking-widest text-accent-light/60 uppercase">{detail}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
