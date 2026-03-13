@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import { generateLabEquipmentProfilePdf } from "@/lib/labEquipmentProfilePdf";
 
@@ -55,8 +55,26 @@ const SCROLL_REVEAL_STEPS: { label: string; title: string; summary?: readonly st
 
 const PROFILE_PDF_FILENAME = "Lab-Equipment-Profile.pdf";
 
+type LabPhase = {
+  threshold: [number, number];
+  label: string;
+  title: string;
+  summary?: readonly string[];
+};
+
+const LAB_PHASES: LabPhase[] = SCROLL_REVEAL_STEPS.map((step, index, arr) => {
+  const start = index / arr.length;
+  const end = (index + 1) / arr.length;
+  return {
+    threshold: [start, end],
+    label: step.label,
+    title: step.title,
+    summary: step.summary,
+  };
+});
+
 export default function LabEquipmentPage() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -111,9 +129,12 @@ export default function LabEquipmentPage() {
             frameFilePrefix="frame_"
             frameFileSuffix="_delay-0.05s"
             fileExtension="webp"
+            darkenOverlayOpacity={0.3}
             showLoadingOverlay={false}
           />
         </div>
+        {/* Bottom-left phase titles animating with scroll */}
+        <LabEquipmentOverlay scrollYProgress={smoothProgress} />
       </div>
 
       {/* Scroll indicator */}
@@ -127,94 +148,16 @@ export default function LabEquipmentPage() {
         <div className="w-[1px] h-8 bg-accent-light/50" />
       </motion.div>
 
-      <div ref={containerRef} className="relative z-20">
+      <div className="relative z-20">
 
-        {/* 1. Hero title */}
-        <section className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="text-accent-blue font-orbitron text-xs tracking-[0.4em] mb-4 block">
-              LAB & EQUIPMENT
-            </span>
-            <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-              ELECTRONICS, TOOLS & RENTAL
-            </h1>
-            <p className="text-accent-light/70 text-lg max-w-2xl mx-auto">
-              A single view of our electronics trainers, digital logic systems, equipment &amp; tools, and
-              specialized rental services.
-            </p>
-          </div>
-        </section>
-
-        {/* 2. Scroll-reveal: section titles one by one (video behind); trainers get short summary below title */}
-        <section className="relative" aria-label="Overview">
-          {SCROLL_REVEAL_STEPS.slice(1).map((step, i) => (
+        {/* Scroll drivers for phase overlays (no visible text; overlay handles content) */}
+        <section ref={containerRef} aria-hidden="true">
+          {SCROLL_REVEAL_STEPS.map((_, i) => (
             <div
               key={i}
-              className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 py-24"
-            >
-              <div className="max-w-3xl mx-auto text-center">
-                <span className="text-accent-blue font-orbitron text-xs tracking-[0.4em] mb-4 block">
-                  {step.label}
-                </span>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight mb-6">
-                  {step.title}
-                </h2>
-                {step.summary && (
-                  <div
-                    className={`text-accent-light/80 text-sm sm:text-base space-y-3 max-w-2xl mx-auto mt-6 ${
-                      step.label === "EQUIPMENT RENTAL SERVICES" ? "text-center" : "text-left"
-                    }`}
-                  >
-                    {step.summary.map((line, j) => (
-                      <p key={j} className="leading-relaxed">
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+              className="min-h-screen"
+            />
           ))}
-        </section>
-
-        {/* Download Profile — clicking generates and downloads the PDF */}
-        <section className="border-t border-white/10 py-16 sm:py-24 px-4 sm:px-6 md:px-8">
-          <div className="max-w-2xl mx-auto text-center">
-          <span className="text-accent-blue font-orbitron text-xs tracking-[0.4em] mb-4 block">
-            DOWNLOAD
-          </span>
-          <h2 className="text-2xl md:text-3xl font-black mb-4">
-            DOWNLOAD LAB & EQUIPMENT PROFILE
-          </h2>
-          <p className="text-accent-light/60 text-sm sm:text-base mb-4 max-w-lg mx-auto">
-            The profile PDF contains the full document: all trainer characteristics, memory map, system configuration, list of modules, main aspects, features, plus digital logic, FPGA, equipment & tools, and rental inventory. Download below.
-          </p>
-          <p className="text-accent-light/50 text-xs sm:text-sm mb-8 max-w-md mx-auto">
-            One PDF — categories, modules, features, and rental information in detail.
-          </p>
-          <button
-            type="button"
-            onClick={handleDownloadProfile}
-            disabled={downloading}
-            className="inline-flex items-center gap-3 px-8 py-4 bg-accent-blue hover:bg-accent-blue/90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm tracking-[0.2em] transition-colors"
-          >
-            {downloading ? (
-              "Checking…"
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                DOWNLOAD PROFILE
-              </>
-            )}
-          </button>
-          {downloadError && (
-            <p className="mt-4 text-sm text-amber-400/90 max-w-md mx-auto" role="alert">
-              {downloadError}
-            </p>
-          )}
-          </div>
         </section>
 
         <Footer />
@@ -223,3 +166,73 @@ export default function LabEquipmentPage() {
   );
 }
 
+function LabEquipmentOverlay({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  return (
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16">
+      {LAB_PHASES.map((phase, index) => (
+        <LabPhaseBlock
+          key={phase.title}
+          phase={phase}
+          index={index}
+          scrollYProgress={scrollYProgress}
+        />
+      ))}
+    </div>
+  );
+}
+
+function LabPhaseBlock({
+  phase,
+  index,
+  scrollYProgress,
+}: {
+  phase: LabPhase;
+  index: number;
+  scrollYProgress: MotionValue<number>;
+}) {
+  const isFirst = index === 0;
+  const [start, end] = phase.threshold;
+
+  const opacity = useTransform(
+    scrollYProgress,
+    isFirst
+      ? [0, 0.02, end - 0.05, end]
+      : [start, start + 0.05, end - 0.05, end],
+    isFirst ? [1, 1, 1, 0] : [0, 1, 1, 0]
+  );
+
+  const y = useTransform(
+    scrollYProgress,
+    isFirst
+      ? [0, 0.02, end - 0.05, end]
+      : [start, start + 0.05, end - 0.05, end],
+    isFirst ? [0, 0, 0, -20] : [20, 0, 0, -20]
+  );
+
+  return (
+    <motion.div
+      style={{ opacity, y }}
+      className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 text-left"
+    >
+      <div className="w-full flex flex-col md:flex-row justify-between gap-6 md:gap-12">
+        <div className="max-w-xl">
+          <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
+            {phase.label}
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-2">
+            {phase.title}
+          </h2>
+        </div>
+        {phase.summary && (
+          <div className="ml-auto max-w-xl text-[11px] sm:text-xs md:text-sm text-accent-light/80 space-y-1 md:space-y-2 text-right">
+            {phase.summary.map((line, idx) => (
+              <p key={idx} className="leading-relaxed">
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}

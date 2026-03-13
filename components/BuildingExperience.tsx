@@ -2,7 +2,7 @@
 
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { BUILDING_PHASES } from "@/data/buildingData";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   scrollYProgress: MotionValue<number>;
@@ -11,18 +11,10 @@ interface Props {
 export default function BuildingExperience({ scrollYProgress }: Props) {
   return (
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-16">
-      <div className="flex justify-between items-start">
-        {/* Top Left: Phase label only (system status box removed) */}
-        <div className="space-y-4">
-          <PhaseLabel scrollYProgress={scrollYProgress} />
-        </div>
-
-        {/* Top Right: Progress Percent */}
-        <div className="text-right">
-          <motion.div className="font-orbitron text-2xl sm:text-3xl md:text-4xl font-black text-accent-light opacity-20">
-            <ScrollPercent scrollYProgress={scrollYProgress} />
-          </motion.div>
-        </div>
+      <div className="flex justify-end items-start">
+        <motion.div className="font-orbitron text-2xl sm:text-3xl md:text-4xl font-black text-accent-light opacity-20">
+          <ScrollPercent scrollYProgress={scrollYProgress} />
+        </motion.div>
       </div>
 
       <div className="flex flex-col md:flex-row justify-end md:justify-between items-center md:items-end w-full">
@@ -43,32 +35,6 @@ export default function BuildingExperience({ scrollYProgress }: Props) {
       {/* Visual Rails / Border accents */}
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent-blue/20 to-transparent" />
       <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-accent-light/5 to-transparent" />
-    </div>
-  );
-}
-
-function PhaseLabel({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
-  const [phaseIndex, setPhaseIndex] = useState(0);
-  const lastIdxRef = useRef(0);
-
-  useEffect(() => {
-    return scrollYProgress.on("change", (v) => {
-      const idx = BUILDING_PHASES.findIndex(p => v >= p.threshold[0] && v <= p.threshold[1]);
-      if (idx !== -1 && idx !== lastIdxRef.current) {
-        lastIdxRef.current = idx;
-        setPhaseIndex(idx);
-      }
-    });
-  }, [scrollYProgress]);
-
-  return (
-    <div className="flex items-center gap-3">
-      <span className="px-2 py-0.5 border border-accent-blue text-[8px] font-bold text-accent-blue tracking-widest">
-        PHASE {phaseIndex + 1}
-      </span>
-      <span className="text-[10px] tracking-[0.3em] uppercase text-accent-light/40">
-        SCANNING SECTOR
-      </span>
     </div>
   );
 }

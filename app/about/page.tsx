@@ -93,51 +93,63 @@ export default function AboutPage() {
     <main className="min-h-screen bg-[#0b0b0b] text-accent-light selection:bg-accent-blue selection:text-white">
       <Navbar />
 
-      {/* Hero — full bleed with accent rail */}
+      {/* Hero — centered content with background image */}
       <section className="relative border-b border-white/5 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[url('/images/sequence/aboutus.png')] bg-cover bg-center opacity-90"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-[#0b0b0b]/90" aria-hidden />
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-accent-blue/60 to-transparent" aria-hidden />
-        <div className="px-4 pt-24 pb-16 sm:px-6 sm:pt-28 sm:pb-20 md:px-8 md:pt-32 md:pb-24">
-          <div className="max-w-4xl mx-auto pl-6 sm:pl-8">
-            <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-4 block">
-              WHO WE ARE
-            </span>
-            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">
+        <div className="relative px-4 pt-24 pb-16 sm:px-6 sm:pt-28 sm:pb-20 md:px-8 md:pt-32 md:pb-24">
+          <div className="max-w-4xl mx-auto text-center">
+            
+            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-8">
               ABOUT US
             </h1>
-            <p className="text-lg text-accent-light/60 max-w-2xl leading-relaxed">
-              A Pakistan-based engineering company specialized in mechanical fabrication, CNC machining, precision manufacturing, and industrial equipment supply.
+            <p className="text-lg text-accent-light/60 max-w-2xl mx-auto leading-relaxed mb-10 sm:mb-12">
+              NSETS (Pvt.) Ltd. is a DGDP-registered, SPD security-cleared general order supplier established in 2015, trusted for precision, full regulatory compliance, and defense-focused procurement for government and semi-government institutions, and serves as an authorized distributor and global partner for leading brands in uPVC, smart home solutions, and training equipment.
             </p>
+            <a
+              href="/companyprofile.pdf"
+              download
+              className="inline-block px-10 py-3 sm:py-4 bg-[#0b4e9b] hover:bg-accent-blue/90 text-white font-bold text-xs sm:text-sm tracking-[0.25em] transition-colors border border-white/10 rounded-md sm:rounded-lg"
+            >
+              DOWNLOAD PROFILE
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Company intro — two-column on large screens */}
+      {/* Leadership / Team */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            {...fadeIn}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16"
-          >
-            <div className="lg:col-span-4">
-              <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
-                COMPANY
-              </span>
-              <h2 className="text-xl md:text-2xl font-black text-accent-light">
-                NSETS (PRIVATE) LIMITED
-              </h2>
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-10 md:gap-14 items-center">
+          <div>
+            <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
+              OUR TEAM
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black mb-4">
+              MESSAGE FROM OUR CEO
+            </h2>
+            <p className="text-accent-light/70 text-sm sm:text-base leading-relaxed">
+              NSETS was founded with a clear vision: to be a trusted, innovation-driven provider of engineering and security solutions. From a focused start, we have expanded into new markets and disciplines, powered by a team that shares the same values of discipline, integrity, and technical excellence.
+            </p>
+            <p className="mt-3 text-accent-light/70 text-sm sm:text-base leading-relaxed">
+              The continued confidence of our customers &mdash; reflected in repeat orders and long-term partnerships &mdash; is the strongest endorsement of our leadership and capabilities. Insha&rsquo;Allah, we will keep raising the bar, investing in new technologies, modern engineering practices, and projects that contribute meaningfully to Pakistan&rsquo;s progress. I am grateful to the NSETS team, our clients, and stakeholders for their unwavering trust and support.
+            </p>
+            <p className="mt-4 text-accent-light/60 text-xs sm:text-sm font-semibold tracking-wide">
+              Eng. Nouman Khan Jadoon &mdash; CEO, NSETS
+            </p>
+          </div>
+          <div className="flex justify-center md:justify-end">
+            <div className="relative w-60 h-60 sm:w-72 sm:h-72 rounded-full overflow-hidden border border-white/10 shadow-lg bg-neutral-gray/40">
+              <img
+                src="/images/sequence/ceo.png"
+                alt="Eng. Nouman Khan Jadoon, CEO NSETS"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="lg:col-span-8 space-y-5 text-accent-light/70 leading-relaxed">
-              <p>
-                NSETS (Private) Limited is a Pakistan-based engineering company specialized in mechanical fabrication, CNC machining, precision manufacturing, and industrial equipment supply.
-              </p>
-              <p>
-                With a strong technical foundation and a complete in-house CNC mechanical setup, we provide customized mechanical job services and supply solutions for industrial machines, furnaces, and production systems.
-              </p>
-              <p>
-                Our engineering team consists of highly skilled professionals capable of delivering both local fabrication projects and international machinery sourcing with full technical compliance, installation, and after-sales support.
-              </p>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -145,12 +157,17 @@ export default function AboutPage() {
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white/[0.02] border-y border-white/5">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeIn} className="hud-border rounded-sm p-6 sm:p-8 md:p-10">
-            <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
+            <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block text-center">
               OUR PARTNERSHIP
             </span>
-            <h2 className="text-2xl md:text-3xl font-black mb-8">
-              WINtech UPVC Profile — Powered by ADO Group
-            </h2>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-black">
+                WINtech UPVC Profile
+              </h2>
+              <p className="text-sm md:text-base text-accent-light/70 mt-2 font-medium tracking-wider">
+                Powered by ADO Group
+              </p>
+            </div>
 
             <div className="space-y-8 text-accent-light/70 leading-relaxed">
               <div>
@@ -249,7 +266,7 @@ export default function AboutPage() {
               GLOBAL SOURCING
             </span>
             <h2 className="text-2xl md:text-3xl font-black mb-4">
-              EQUIPMENT SUPPLY (CHINA & INTERNATIONAL)
+              EQUIPMENT SUPPLY 
             </h2>
             <p className="text-accent-light/70 leading-relaxed mb-6 max-w-2xl">
               NSETS Pvt. Ltd has strategic sourcing partnerships with leading mechanical equipment manufacturers in China, enabling us to offer reliable, cost-effective, and high-performance machinery for defense and industrial use.
@@ -470,21 +487,74 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Contact form (inline, like Contact page but compact) */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-8 border-t border-white/5">
-        <div className="max-w-2xl mx-auto text-center">
-          <Link
-            href="/contact"
-            className="inline-block px-10 py-4 bg-accent-blue hover:bg-accent-blue/90 text-white font-bold text-sm tracking-[0.2em] transition-colors"
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-8 tracking-wide text-center">SEND A MESSAGE</h2>
+          <form
+            className="space-y-6"
+            onSubmit={(e) => e.preventDefault()}
           >
-            CONTACT US
-          </Link>
-          <Link
-            href="/"
-            className="block mt-6 text-accent-light/50 hover:text-accent-blue text-sm font-bold tracking-widest transition-colors"
-          >
-            ← BACK TO HOME
-          </Link>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="about-name" className="block text-xs font-bold tracking-widest text-accent-light/60 mb-2">
+                  NAME
+                </label>
+                <input
+                  id="about-name"
+                  type="text"
+                  name="name"
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-accent-light placeholder-accent-light/30 focus:border-accent-blue focus:outline-none transition-colors"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label htmlFor="about-email" className="block text-xs font-bold tracking-widest text-accent-light/60 mb-2">
+                  EMAIL
+                </label>
+                <input
+                  id="about-email"
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-accent-light placeholder-accent-light/30 focus:border-accent-blue focus:outline-none transition-colors"
+                  placeholder="your@email.com"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="about-subject" className="block text-xs font-bold tracking-widest text-accent-light/60 mb-2">
+                SUBJECT
+              </label>
+              <input
+                id="about-subject"
+                type="text"
+                name="subject"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-accent-light placeholder-accent-light/30 focus:border-accent-blue focus:outline-none transition-colors"
+                placeholder="Inquiry subject"
+              />
+            </div>
+            <div>
+              <label htmlFor="about-message" className="block text-xs font-bold tracking-widest text-accent-light/60 mb-2">
+                MESSAGE
+              </label>
+              <textarea
+                id="about-message"
+                name="message"
+                rows={3}
+                required
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-accent-light placeholder-accent-light/30 focus:border-accent-blue focus:outline-none transition-colors resize-y min-h-[80px]"
+                placeholder="Your message..."
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full md:w-auto px-10 py-4 bg-accent-blue hover:bg-accent-blue/90 text-white font-bold text-sm tracking-[0.2em] transition-colors"
+            >
+              SEND MESSAGE
+            </button>
+          </form>
         </div>
       </section>
 

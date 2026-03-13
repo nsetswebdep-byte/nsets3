@@ -17,7 +17,7 @@ const allNavItems = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Home automation", href: "/home-automation" },
-  { label: "uPVC", href: "/upvc" },
+  { label: "uPVC", href: "/upvc", disabled: true },
   { label: "Lab & equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
 ] as const;
@@ -62,8 +62,19 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="pointer-events-auto hidden lg:flex items-center gap-4 xl:gap-6 flex-wrap justify-end max-w-[70%]">
-          {navItems.map(({ label, href }) => {
+          {navItems.map(({ label, href, disabled }) => {
             const isActive = pathname === href || (href === "/" && pathname === "/");
+            if (disabled) {
+              return (
+                <span
+                  key={href}
+                  className="text-sm xl:text-base font-semibold tracking-widest text-accent-light/40 whitespace-nowrap cursor-default"
+                  aria-disabled="true"
+                >
+                  {label}
+                </span>
+              );
+            }
             return (
               <Link
                 key={href}
@@ -128,8 +139,19 @@ export default function Navbar() {
             className="fixed inset-0 z-40 lg:hidden bg-[#0b0b0b]/98 backdrop-blur-md pt-20 pb-8 px-6 overflow-y-auto"
           >
             <nav className="flex flex-col gap-1 max-w-md mx-auto" aria-label="Mobile navigation">
-              {navItems.map(({ label, href }) => {
+              {navItems.map(({ label, href, disabled }) => {
                 const isActive = pathname === href || (href === "/" && pathname === "/");
+                if (disabled) {
+                  return (
+                    <span
+                      key={href}
+                      className="block py-4 px-4 rounded-sm text-base font-semibold tracking-wider text-accent-light/30 cursor-default"
+                      aria-disabled="true"
+                    >
+                      {label}
+                    </span>
+                  );
+                }
                 return (
                   <Link
                     key={href}

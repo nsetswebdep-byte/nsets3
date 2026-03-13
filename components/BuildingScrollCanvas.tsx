@@ -17,6 +17,8 @@ interface Props {
   fileExtension?: "png" | "webp" | "jpg" | "jpeg";
   /** When false, hides the "OPTIMIZING EXPERIENCE" loading overlay (e.g. for lab-equipment, same as home). Default true. */
   showLoadingOverlay?: boolean;
+  /** Optional darkening overlay (0–1). 0 = none. */
+  darkenOverlayOpacity?: number;
 }
 
 export default function BuildingScrollCanvas({
@@ -28,6 +30,7 @@ export default function BuildingScrollCanvas({
   frameIndexOneBased = false,
   fileExtension = "png",
   showLoadingOverlay = true,
+  darkenOverlayOpacity = 0,
 }: Props) {
   // Number of frames we try to load eagerly on initial page load.
   // Remaining frames are loaded later in small batches so the
@@ -193,6 +196,13 @@ export default function BuildingScrollCanvas({
         className="w-full h-full block object-contain transform-gpu"
         aria-hidden="true"
       />
+
+      {darkenOverlayOpacity > 0 && (
+        <div
+          className="pointer-events-none absolute inset-0 bg-black"
+          style={{ opacity: Math.min(Math.max(darkenOverlayOpacity, 0), 1) }}
+        />
+      )}
       
       {/* Loading Overlay – only cares about the first few frames */}
       {showLoadingOverlay && loadedCount < Math.min(24, totalFrames) && (

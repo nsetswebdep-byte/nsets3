@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useScroll, motion, useSpring, useTransform } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -40,9 +41,11 @@ export default function Home() {
           <BuildingScrollCanvas
             scrollYProgress={smoothProgress}
             totalFrames={TOTAL_FRAMES}
-            imageFolderPath="/images/sequence/newframes2"
-            frameFilePrefix="ezgif-frame-"
-            frameIndexOneBased
+            imageFolderPath="/images/sequence/newframes3"
+            frameFilePrefix="frame_"
+            frameFileSuffix="_delay-0.066s"
+            fileExtension="webp"
+            darkenOverlayOpacity={0.20}
             showLoadingOverlay={false}
           />
         </div>
@@ -87,11 +90,14 @@ export default function Home() {
               </div>
               <div className="hud-border p-1 bg-neutral-gray/20 mt-8 md:mt-0">
                 <div className="aspect-square w-full max-w-[280px] md:max-w-none mx-auto bg-neutral-gray/10 flex items-center justify-center border border-white/5 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40 grayscale" />
+                  <Image
+                    src="/images/sequence/buildfuture.png"
+                    alt="N-SETS - We build the future of living"
+                    fill
+                    className="object-cover opacity-90"
+                    priority
+                  />
                   <div className="absolute inset-0 bg-accent-blue/10 mix-blend-overlay" />
-                  <div className="z-10 text-center">
-                    <span className="font-orbitron text-4xl sm:text-5xl md:text-6xl font-black text-accent-light/20 tracking-tighter">N-SETS</span>
-                  </div>
                 </div>
               </div>
             </div>

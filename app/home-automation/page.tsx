@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import PdfBookViewer from "@/components/PdfBookViewer";
 import SeqImage from "@/components/SeqImage";
+import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
+import { useScroll, useSpring, useTransform, motion, type MotionValue } from "framer-motion";
 
 const CONTROL_CARDS = [
   {
@@ -53,36 +56,97 @@ const SMART_SENSORS = [
   { name: "smoke sensor", label: "Smoke Sensor" },
 ];
 
+// Home automation scroll sequence (0–287)
+const HOME_AUTO_TOTAL_FRAMES = 288;
+
+type HomeAutoPhase = {
+  threshold: [number, number];
+  title: string;
+  subtitle: string;
+};
+
+const HOME_AUTO_PHASES: HomeAutoPhase[] = [
+  {
+    threshold: [0, 0.25],
+    title: "CONTROL EVERYTHING",
+    subtitle: "FROM YOUR FINGERTIPS",
+  },
+  {
+    threshold: [0.25, 0.5],
+    title: "HOMEAI OS 3.0",
+    subtitle: "ACTIVE INTELLIGENCE SYSTEM",
+  },
+  {
+    threshold: [0.5, 0.75],
+    title: "MIXPAD SERIES",
+    subtitle: "SUPER SMART PANELS",
+  },
+  {
+    threshold: [0.75, 1],
+    title: "SECURITY & SENSORS",
+    subtitle: "LOCKS • CAMERAS • TRACKING",
+  },
+];
+
 export default function HomeAutomationPage() {
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 260,
+    damping: 28,
+    restDelta: 0.001,
+    restSpeed: 0.002,
+  });
+
+  const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0.3, 0]);
+
   return (
-    <main className="min-h-screen bg-[#0b0b0b] text-accent-light selection:bg-accent-blue selection:text-white">
+    <main className="relative min-h-screen bg-[#0b0b0b] text-accent-light selection:bg-accent-blue selection:text-white">
       <Navbar />
 
-      {/* Hero */}
-      <section className="border-b border-white/5 px-4 pt-24 pb-16 sm:px-6 sm:pt-28 sm:pb-20 md:pt-32 md:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <span className="mb-4 block font-orbitron text-xs tracking-[0.4em] text-accent-blue">
-            HOMEAI OS
-          </span>
-          <h1 className="mb-6 text-4xl font-black leading-tight md:text-6xl">
-            HOME AUTOMATION
-          </h1>
-          <p className="mb-4 text-xl font-medium text-accent-light md:text-2xl">
-            Make Your Home A Decade Ahead
-          </p>
-          <p className="mb-6 text-accent-blue text-sm tracking-widest">
-            N-SETS: SEAMLESS SOLUTIONS FOR SMARTER SPACES
-          </p>
-          <p className="mx-auto max-w-2xl text-lg text-accent-light/60">
-            N-Sets HomeAI OS is the first active intelligent smart home operating system. We take the
-            super smart panel as the interaction center and cover the intelligent product matrix of
-            the whole living space.
-          </p>
+      {/* Fixed Background Sequence */}
+      <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint">
+        <div className="absolute inset-0 will-change-transform transform-gpu">
+          <BuildingScrollCanvas
+            scrollYProgress={smoothProgress}
+            totalFrames={HOME_AUTO_TOTAL_FRAMES}
+            imageFolderPath="/images/sequence/homeautomation"
+            frameFilePrefix="frame_"
+            frameFileSuffix="_delay-0.041s"
+            fileExtension="webp"
+            darkenOverlayOpacity={0.35}
+            showLoadingOverlay={false}
+          />
         </div>
+        {/* Text overlay pinned over the sequence, phase-based like home page */}
+        <HomeAutomationOverlay scrollYProgress={smoothProgress} />
+      </div>
+
+      {/* Scrollable Content Spacer - Drives the sequence */}
+      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none">
+        <motion.div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 sm:gap-2 opacity-30 sm:bottom-8"
+          animate={{ y: [0, 5, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          style={{ opacity: scrollIndicatorOpacity }}
+        >
+          <span className="text-[8px] tracking-[0.5em] font-bold">SCROLL</span>
+          <div className="w-[1px] h-8 bg-accent-light/50" />
+        </motion.div>
       </section>
 
-      {/* Control Everything + Product Cards */}
-      <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+      {/* Post-Sequence Content - Overlays the background */}
+      <div className="relative z-20 mt-[-100vh]">
+        {/* Spacer to let sequence play under navbar before content */}
+        <div className="h-screen w-full pointer-events-none" />
+
+        {/* Control Everything + Product Cards */}
+        <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8 bg-[#0b0b0b]">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center md:mb-20">
             <h2 className="mb-4 text-3xl font-black md:text-4xl">
@@ -113,8 +177,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* HomeAI OS 3.0 */}
-      <section className="border-b border-white/5 bg-[#0d0d0d] px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* HomeAI OS 3.0 */}
+        <section className="border-b border-white/5 bg-[#0d0d0d]/90 px-4 py-16 sm:px-6 sm:py-24 md:px-8 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 flex justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-accent-blue/50 text-accent-blue">
@@ -136,8 +200,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* MixPad X Full Screen Super Smart Panel — dark promo layout */}
-      <section className="border-b border-white/5 bg-[#08090c] px-4 py-14 sm:px-6 sm:py-20 md:px-8">
+        {/* MixPad X Full Screen Super Smart Panel — dark promo layout */}
+        <section className="border-b border-white/5 bg-[#08090c]/90 px-4 py-14 sm:px-6 sm:py-20 md:px-8 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Left: badge, title, bullets, VRV panel */}
@@ -185,8 +249,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* MixPad M2 + OLOCK — with product images */}
-      <section className="border-b border-white/5 bg-[#0d0d0d] px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* MixPad M2 + OLOCK — with product images */}
+        <section className="border-b border-white/5 bg-[#0d0d0d]/90 px-4 py-16 sm:px-6 sm:py-24 md:px-8 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl space-y-24">
           {/* MixPad M2 — full product shot, no heavy background frame */}
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
@@ -250,8 +314,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* MixPad S — one image, then grey color image below */}
-      <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* MixPad S — one image, then grey color image below */}
+        <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8 bg-[#0b0b0b]/90 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-3 text-center text-2xl font-black md:text-3xl">
             MixPad S Super Smart Panel
@@ -281,8 +345,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* Smart Security: 360° Protection — banner + two lock images */}
-      <section className="border-b border-white/5">
+        {/* Smart Security: 360° Protection — banner + two lock images */}
+        <section className="border-b border-white/5">
         <div className="bg-[#161a22] py-6 md:py-8">
           <h2 className="text-center text-xl font-bold text-white md:text-2xl">
             Smart Security: 360° Protection
@@ -334,8 +398,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* Smart Camera + Smart Sensors */}
-      <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* Smart Camera + Smart Sensors */}
+        <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8 bg-[#0b0b0b]/90 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-6 text-center text-2xl font-black">Smart Camera</h2>
           <p className="mb-8 text-center leading-relaxed text-accent-light/70">
@@ -378,8 +442,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* Lighting - Track — ha1, ha2, ha3 collage */}
-      <section className="border-b border-white/5 bg-[#0d0d0d] px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* Lighting - Track — ha1, ha2, ha3 collage */}
+        <section className="border-b border-white/5 bg-[#0d0d0d]/90 px-4 py-16 sm:px-6 sm:py-24 md:px-8 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl">
           <h2 className="mb-10 text-center text-2xl font-black">Smart Lighting & Track</h2>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -411,8 +475,8 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* PDFs: Jie Tech & ORVIBO — stacked vertically, compact */}
-      <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+        {/* PDFs: Jie Tech & ORVIBO — stacked vertically, compact */}
+        <section className="border-b border-white/5 px-4 py-16 sm:px-6 sm:py-24 md:px-8 bg-[#0b0b0b]/90 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl">
           <span className="mb-4 block font-orbitron text-xs tracking-[0.4em] text-accent-blue">
             CATALOGS
@@ -422,7 +486,7 @@ export default function HomeAutomationPage() {
             <div className="w-full">
               <h3 className="mb-4 text-lg font-bold text-accent-light">Jie Tech</h3>
               <PdfBookViewer
-                src="/images/sequence/jietech.pdf"
+                src="/images/sequence/Jietech.pdf"
                 totalPages={21}
                 title="Jie Tech catalog"
               />
@@ -439,28 +503,89 @@ export default function HomeAutomationPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="border-t border-white/5 px-4 py-14 sm:px-6 sm:py-20 md:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-8 text-accent-light/60">
-            Ready to make your home a decade ahead? Get in touch for HomeAI OS and smart solutions.
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-accent-blue px-10 py-4 text-sm font-bold tracking-[0.2em] text-white transition-colors hover:bg-accent-blue/90"
-          >
-            CONTACT US
-          </Link>
-          <Link
-            href="/"
-            className="mt-6 block text-sm font-bold tracking-widest text-accent-light/50 transition-colors hover:text-accent-blue"
-          >
-            ← BACK TO HOME
-          </Link>
-        </div>
-      </section>
+        {/* CTA */}
+        <section className="border-t border-white/5 px-4 py-14 sm:px-6 sm:py-20 md:px-8 bg-[#0b0b0b]/90 backdrop-blur-sm">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="mb-8 text-accent-light/60">
+              Ready to make your home a decade ahead? Get in touch for HomeAI OS and smart solutions.
+            </p>
+            <Link
+              href="/contact"
+              className="inline-block bg-accent-blue px-10 py-4 text-sm font-bold tracking-[0.2em] text-white transition-colors hover:bg-accent-blue/90"
+            >
+              CONTACT US
+            </Link>
+            <Link
+              href="/"
+              className="mt-6 block text-sm font-bold tracking-widest text-accent-light/50 transition-colors hover:text-accent-blue"
+            >
+              ← BACK TO HOME
+            </Link>
+          </div>
+        </section>
+      </div>
 
       <Footer />
     </main>
+  );
+}
+
+function HomeAutomationOverlay({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  return (
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16">
+      {HOME_AUTO_PHASES.map((phase, i) => (
+        <HomeAutomationPhaseBlock
+          key={phase.title}
+          phase={phase}
+          index={i}
+          scrollYProgress={scrollYProgress}
+        />
+      ))}
+    </div>
+  );
+}
+
+function HomeAutomationPhaseBlock({
+  phase,
+  index,
+  scrollYProgress,
+}: {
+  phase: HomeAutoPhase;
+  index: number;
+  scrollYProgress: MotionValue<number>;
+}) {
+  const opacity = useTransform(
+    scrollYProgress,
+    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    [0, 1, 1, 0]
+  );
+
+  const y = useTransform(
+    scrollYProgress,
+    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    [20, 0, 0, -20]
+  );
+
+  return (
+    <motion.div
+      style={{ opacity, y }}
+      className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 text-left"
+    >
+      <div className="max-w-xl">
+        <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
+          HOME AUTOMATION
+        </span>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-2">
+          {phase.title}
+        </h2>
+        <p className="text-accent-blue text-[10px] sm:text-xs tracking-[0.35em] uppercase mb-2">
+          {phase.subtitle}
+        </p>
+        <p className="text-accent-light/70 text-xs sm:text-sm max-w-md">
+          N-SETS HomeAI OS connects panels, switches, locks, cameras, and sensors into one
+          intelligent ecosystem for smarter living.
+        </p>
+      </div>
+    </motion.div>
   );
 }

@@ -37,18 +37,26 @@ export default function UpvcPage() {
     <main className="min-h-screen bg-[#0b0b0b] text-accent-light selection:bg-accent-blue selection:text-white">
       <Navbar />
 
-      {/* Hero */}
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8 border-b border-white/5">
-        <div className="max-w-4xl mx-auto text-center">
-          <span className="text-accent-blue font-orbitron text-xs tracking-[0.4em] mb-4 block">
-            WINtech BY ADO GROUP
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            uPVC WINDOWS & DOORS
-          </h1>
-          <p className="text-accent-light/60 text-lg max-w-2xl mx-auto">
-            Durable, energy-efficient, and stylish solutions by Wintech — trusted profiles for residential and commercial projects.
-          </p>
+      {/* Hero with background image (same style as About hero) */}
+      <section className="relative border-b border-white/5 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[url('/images/sequence/aboutus.png')] bg-cover bg-center opacity-80"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-[#0b0b0b]/90" aria-hidden />
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-accent-blue/60 to-transparent" aria-hidden />
+        <div className="relative px-4 pt-24 pb-16 sm:px-6 sm:pt-28 sm:pb-20 md:px-8 md:pt-32 md:pb-24">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-accent-blue font-orbitron text-xs tracking-[0.4em] mb-4 block">
+              WINtech BY ADO GROUP
+            </span>
+            <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+              uPVC WINDOWS & DOORS
+            </h1>
+            <p className="text-accent-light/60 text-lg max-w-2xl mx-auto">
+              Durable, energy-efficient, and stylish solutions by Wintech — trusted profiles for residential and commercial projects.
+            </p>
+          </div>
         </div>
       </section>
 

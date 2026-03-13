@@ -8,23 +8,24 @@ export interface HUDPhase {
 export const BUILDING_PHASES: HUDPhase[] = [
     {
         threshold: [0, 0.3],
-        title: "Engineering Vision",
-        subtitle: "N-SETS Architecture",
-        details: ["BLUEPRINT ANALYSIS", "SITE SURVEY ACTIVE", "VISION MAPPING"]
+        title: "NSETS - Global Innovation",
+        subtitle: "Where Innovation Meets Space",
+        details: ["uPVC", "Smart Home Solutions", "Training Equipment"]
     },
     {
         threshold: [0.3, 0.7],
-        title: "Structure Rising",
-        subtitle: "Core Engaged",
-        details: ["FOUNDATION SECURED", "STEEL INTEGRATION", "CORE SYSTEM ONLINE"]
+        title: "uPVC",
+        subtitle: "Strength in Every Frame",
+        details: ["222 Series", "632 Series", "750 Series"]
     },
     {
         threshold: [0.7, 1.0],
-        title: "Smart Facility",
-        subtitle: "Powered by N-SETS",
-        details: ["SOLUTIONS DEPLOYED", "SMART ECOSYSTEM", "OPERATIONAL READY"]
+        title: "Smart Home Solutions",
+        subtitle: "Smarter Living Starts Here",
+        details: ["Obivo", "Jitech"]
     }
 ];
 
-export const TOTAL_FRAMES = 242;
+// Number of frames in the primary home-page sequence (newframes3).
+export const TOTAL_FRAMES = 293;
 export const SCROLL_LENGTH = "500vh";
