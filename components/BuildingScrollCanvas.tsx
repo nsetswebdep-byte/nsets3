@@ -9,8 +9,14 @@ interface Props {
   imageFolderPath: string;
   /** Filename prefix before the frame number, e.g. "frame_" or "video2_" */
   frameFilePrefix?: string;
+  /** Optional suffix inserted after the index but before the extension, e.g. "_delay-0.05s" */
+  frameFileSuffix?: string;
   /** If true, frame numbers are 1-based (e.g. video2_001..video2_145). If false, 0-based (frame_000..frame_191). */
   frameIndexOneBased?: boolean;
+  /** File extension without dot, defaults to "png" */
+  fileExtension?: "png" | "webp" | "jpg" | "jpeg";
+  /** When false, hides the "OPTIMIZING EXPERIENCE" loading overlay (e.g. for lab-equipment, same as home). Default true. */
+  showLoadingOverlay?: boolean;
 }
 
 export default function BuildingScrollCanvas({
@@ -18,7 +24,10 @@ export default function BuildingScrollCanvas({
   totalFrames,
   imageFolderPath,
   frameFilePrefix = "frame_",
+  frameFileSuffix = "",
   frameIndexOneBased = false,
+  fileExtension = "png",
+  showLoadingOverlay = true,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<HTMLImageElement[]>([]);
@@ -43,9 +52,9 @@ export default function BuildingScrollCanvas({
       const img = new Image();
       loadedImages[i] = img;
       img.onload = checkComplete;
-      img.src = `${imageFolderPath}/${frameFilePrefix}${frameIndex}.png`;
+      img.src = `${imageFolderPath}/${frameFilePrefix}${frameIndex}${frameFileSuffix}.${fileExtension}`;
     }
-  }, [totalFrames, imageFolderPath, frameFilePrefix, frameIndexOneBased]);
+  }, [totalFrames, imageFolderPath, frameFilePrefix, frameFileSuffix, frameIndexOneBased, fileExtension]);
 
   const rafRef = useRef<number | null>(null);
   const latestProgressRef = useRef(0);
@@ -134,7 +143,7 @@ export default function BuildingScrollCanvas({
       />
       
       {/* Loading Overlay */}
-      {loadedCount < totalFrames && (
+      {showLoadingOverlay && loadedCount < totalFrames && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0b0b0b] z-20">
           <div className="text-center">
             <div className="w-48 h-[2px] bg-neutral-gray relative overflow-hidden mb-4">

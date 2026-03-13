@@ -9,7 +9,7 @@ const PRODUCTS = [
   {
     id: "222",
     name: "222 Series",
-    pdfPath: "/images/sequence/penwood-222.pdf",
+    pdfPath: "/images/sequence/Penwood-222.pdf",
     pdfPages: 2,
     description:
       "A compact, cost-effective 2-chamber PVC profile system with a 60mm frame depth. Ideal for standard residential windows and doors in moderate climates. It offers solid thermal insulation (Uf value ~1.5 W/m²K), easy installation, and resistance to weathering. Perfect for budget-conscious projects without compromising on basic performance.",
@@ -17,7 +17,7 @@ const PRODUCTS = [
   {
     id: "632",
     name: "632 Series",
-    pdfPath: "/images/sequence/penwood-632.pdf",
+    pdfPath: "/images/sequence/Penwood-632.pdf",
     pdfPages: 2,
     description:
       "A mid-range 6-chamber profile with 70mm depth, engineered for enhanced energy efficiency (Uf ~1.2 W/m²K) and noise reduction (up to 40 dB). It supports larger glazing areas, multi-point locking, and customization options like tilt-and-turn mechanisms. Great for urban homes or apartments needing better insulation.",
@@ -25,7 +25,7 @@ const PRODUCTS = [
   {
     id: "750",
     name: "750 Series",
-    pdfPath: "/images/sequence/penwood-750.pdf",
+    pdfPath: "/images/sequence/Penwood-750.pdf",
     pdfPages: 2,
     description:
       "Premium 7-chamber profile featuring 76mm depth for top-tier performance (Uf ~1.0 W/m²K), superior thermal bridging resistance, and high wind load capacity. Suited for luxury builds or cold climates, with options for triple glazing and smart hardware integration. Emphasizes sustainability with recyclable PVC.",

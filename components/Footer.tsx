@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
 
 const ALL_FOOTER_LINKS = [
@@ -8,10 +9,7 @@ const ALL_FOOTER_LINKS = [
   { label: "About", href: "/about" },
   { label: "Home Automation", href: "/home-automation" },
   { label: "uPVC", href: "/upvc" },
-  { label: "Electronics", href: "/electronics" },
-  { label: "Equipment & Tools", href: "/equipment-tools" },
-  { label: "Digital Logic Design", href: "/digital-logic-design" },
-  { label: "Equipment Rental", href: "/equipment-rental-services" },
+  { label: "Lab & Equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -23,14 +21,15 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 md:px-8">
         <div className="grid grid-cols-1 gap-10 sm:gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-16">
           {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center border-2 border-accent-blue text-sm font-bold text-accent-light transition-colors hover:bg-accent-blue hover:text-[#0b0b0b]">
-                N
-              </span>
-              <span className="text-xl font-bold tracking-[0.2em] text-accent-light">
-                N-SETS
-              </span>
+          <div className="lg:col-span-1 flex flex-col items-center text-center">
+            <Link href="/" className="inline-flex items-center justify-center">
+              <Image
+                src="/images/logos/Nsets logo_icon colored.png"
+                alt="N-SETS"
+                width={40}
+                height={40}
+                className="h-10 w-10 object-contain"
+              />
             </Link>
             <p className="mt-4 text-xs font-medium tracking-widest text-accent-blue">
               ENGINEERING THE FUTURE

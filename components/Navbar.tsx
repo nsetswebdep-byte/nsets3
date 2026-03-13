@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -17,10 +18,7 @@ const allNavItems = [
   { label: "About", href: "/about" },
   { label: "Home automation", href: "/home-automation" },
   { label: "uPVC", href: "/upvc" },
-  { label: "Electronics", href: "/electronics" },
-  { label: "Equipment & tools", href: "/equipment-tools" },
-  { label: "Digital logic design", href: "/digital-logic-design" },
-  { label: "Equipment rental services", href: "/equipment-rental-services" },
+  { label: "Lab & equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -50,13 +48,15 @@ export default function Navbar() {
         className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 md:py-6 pointer-events-none"
       >
         <div className="pointer-events-auto">
-          <Link href="/" className="group">
-            <h1 className="text-lg sm:text-xl font-bold tracking-[0.2em] text-accent-light flex items-center gap-2">
-              <span className="w-7 h-7 sm:w-8 sm:h-8 border-2 border-accent-blue flex items-center justify-center text-xs group-hover:bg-accent-blue transition-colors duration-500">
-                N
-              </span>
-              N-SETS
-            </h1>
+          <Link href="/" className="block">
+            <Image
+              src="/images/logos/Nsets logo_horizontal colored.png"
+              alt="N-SETS"
+              width={140}
+              height={40}
+              className="h-8 sm:h-9 w-auto object-contain"
+              priority
+            />
           </Link>
         </div>
 

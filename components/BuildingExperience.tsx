@@ -12,39 +12,9 @@ export default function BuildingExperience({ scrollYProgress }: Props) {
   return (
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-16">
       <div className="flex justify-between items-start">
-        {/* Top Left: Diagnostics */}
+        {/* Top Left: Phase label only (system status box removed) */}
         <div className="space-y-4">
           <PhaseLabel scrollYProgress={scrollYProgress} />
-          <motion.div 
-            className="hud-border p-4 w-64 hidden md:block"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] tracking-widest text-accent-blue font-bold">SYSTEM STATUS</span>
-              <span className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
-            </div>
-            <div className="space-y-1">
-              {["DATA SYNC: OPTIMAL", "CORE TEMP: 24°C", "NETWORK: ENCRYPTED", "LATENCY: 12ms"].map((txt, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className="w-1 h-1 bg-accent-blue/40" />
-                  <span className="text-[8px] tracking-[0.2em] text-accent-light/40 uppercase">{txt}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-4 border-t border-white/5 flex gap-1">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="h-1 w-full bg-accent-blue/10 overflow-hidden">
-                  <motion.div 
-                    className="h-full bg-accent-blue"
-                    animate={{ width: ["0%", "100%", "0%"] }}
-                    transition={{ duration: 2, delay: i * 0.1, repeat: Infinity }}
-                  />
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
 
         {/* Top Right: Progress Percent */}

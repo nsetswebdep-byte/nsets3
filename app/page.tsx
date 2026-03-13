@@ -127,7 +127,7 @@ export default function Home() {
                   { title: "Smart Homes", desc: "Automated living systems integrated with precision.", href: "/home-automation" },
                   { title: "Engineering", desc: "Structural integrity and architectural mastery.", href: "/about" },
                   { title: "uPVC Systems", desc: "Premium window and door solutions for modern insulation.", href: "/upvc" },
-                  { title: "Equipment", desc: "Heavy machinery and specialized rental solutions.", href: "/equipment-rental-services" },
+                  { title: "Lab & Equipment", desc: "Electronics trainers, tools, and rental services in one place.", href: "/lab-equipment" },
                 ].map((service, i) =>
                   SHOW_ALL_PAGES ? (
                     <Link key={i} href={service.href} className="group p-5 sm:p-6 md:p-8 border border-white/5 hover:border-accent-blue/30 transition-all duration-500 hover:bg-white/[0.02] block">

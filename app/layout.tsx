@@ -1,9 +1,31 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
+
+const montserrat = localFont({
+  src: [
+    {
+      path: "../public/font/Montserrat/Montserrat-VariableFont_wght.ttf",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../public/font/Montserrat/Montserrat-Italic-VariableFont_wght.ttf",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-montserrat",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "N-SETS | Engineering Vision & Smart Systems",
-  description: "A cinematic scrollytelling showcase of N-SETS engineering prowess and smart building solutions.",
+  description:
+    "A cinematic scrollytelling showcase of N-SETS engineering prowess and smart building solutions.",
+  icons: {
+    icon: "/images/logos/Nsets logo_icon colored.png",
+  },
 };
 
 export default function RootLayout({
@@ -13,15 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased bg-[#0b0b0b]">
+      <body className={`${montserrat.variable} antialiased bg-[#0b0b0b]`}>
         {children}
       </body>
     </html>
