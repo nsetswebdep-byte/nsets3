@@ -1,79 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import SeqImage from "@/components/SeqImage";
 
-const IMG_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-const IMG_PATHS = ["/sequence/", "/images/sequence/"];
-
-function DldImage({
-  name,
-  alt,
-  className,
-}: {
-  name: string;
-  alt: string;
-  className?: string;
-}) {
-  const [pathIndex, setPathIndex] = useState(0);
-  const [extIndex, setExtIndex] = useState(0);
-  const [failed, setFailed] = useState(false);
-  const [src, setSrc] = useState<string | null>(null);
-  const tryingRef = useRef<string | null>(null);
-
-  // Set image src only after mount so the request always runs on the client with correct origin (fixes reload)
-  useEffect(() => {
-    const base = IMG_PATHS[pathIndex];
-    const ext = IMG_EXTENSIONS[extIndex];
-    const url = typeof window !== "undefined"
-      ? `${window.location.origin}${base}${name}${ext}`
-      : `${base}${name}${ext}`;
-    setSrc(url);
-    tryingRef.current = url;
-  }, [name, pathIndex, extIndex]);
-
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    // Only react to error for the src we're currently trying (avoids spurious onError on reload)
-    if (e.currentTarget.src !== tryingRef.current) return;
-
-    if (extIndex < IMG_EXTENSIONS.length - 1) {
-      setExtIndex((i) => i + 1);
-    } else if (pathIndex < IMG_PATHS.length - 1) {
-      setPathIndex((i) => i + 1);
-      setExtIndex(0);
-    } else {
-      setFailed(true);
-    }
-  };
-
-  if (failed) {
-    return (
-      <div className="flex w-full h-full min-h-[200px] items-center justify-center bg-neutral-gray/40 text-accent-light/40 text-sm text-center px-4">
-        Add image: public/sequence/{name}.jpg or public/images/sequence/{name}.png
-      </div>
-    );
-  }
-
-  if (src === null) {
-    return (
-      <div className="w-full h-full min-h-[200px] bg-neutral-gray/20 animate-pulse" aria-hidden />
-    );
-  }
-
-  return (
-    <img
-      key={src}
-      src={src}
-      alt={alt}
-      className={className}
-      onError={handleError}
-      loading="eager"
-    />
-  );
-}
+const DLD_IMG_PATHS = ["/sequence/", "/images/sequence/"];
 
 const DLD_MAIN_ASPECTS = [
   "Suitable for combinational logic, sequential logic, and microprocessor circuit experimentation and design.",
@@ -139,7 +72,7 @@ export default function DigitalLogicDesignPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative aspect-[4/3] hud-border overflow-hidden bg-neutral-gray/20">
-              <DldImage
+              <SeqImage basePaths={DLD_IMG_PATHS}
                 name="dld1"
                 alt="Digital Logic Design Trainer unit"
                 className="w-full h-full object-cover"
@@ -214,7 +147,7 @@ export default function DigitalLogicDesignPage() {
               </div>
             </div>
             <div className="relative aspect-[4/3] hud-border overflow-hidden bg-neutral-gray/20 order-1 lg:order-2">
-              <DldImage
+              <SeqImage basePaths={DLD_IMG_PATHS}
                 name="dld2"
                 alt="Nexys-2 FPGA Board"
                 className="w-full h-full object-cover"

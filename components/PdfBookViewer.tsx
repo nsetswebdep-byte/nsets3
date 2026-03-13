@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { PDFJS_WORKER_SRC } from "@/lib/pdfjsWorker";
 
 interface PdfBookViewerProps {
   src: string;
@@ -91,7 +92,7 @@ export default function PdfBookViewer({
       try {
         const pdfjsLib = await import("pdfjs-dist");
         if (typeof window !== "undefined" && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.min.mjs";
+          pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
         }
 
         const doc = await pdfjsLib.getDocument(pdfUrl).promise;

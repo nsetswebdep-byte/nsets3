@@ -2,7 +2,7 @@
 
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { BUILDING_PHASES } from "@/data/buildingData";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   scrollYProgress: MotionValue<number>;
@@ -42,20 +42,24 @@ export default function BuildingExperience({ scrollYProgress }: Props) {
       
       {/* Visual Rails / Border accents */}
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent-blue/20 to-transparent" />
-      <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-accent-white/5 to-transparent" />
+      <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-accent-light/5 to-transparent" />
     </div>
   );
 }
 
 function PhaseLabel({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
   const [phaseIndex, setPhaseIndex] = useState(0);
-  
+  const lastIdxRef = useRef(0);
+
   useEffect(() => {
     return scrollYProgress.on("change", (v) => {
       const idx = BUILDING_PHASES.findIndex(p => v >= p.threshold[0] && v <= p.threshold[1]);
-      if (idx !== -1 && idx !== phaseIndex) setPhaseIndex(idx);
+      if (idx !== -1 && idx !== lastIdxRef.current) {
+        lastIdxRef.current = idx;
+        setPhaseIndex(idx);
+      }
     });
-  }, [scrollYProgress, phaseIndex]);
+  }, [scrollYProgress]);
 
   return (
     <div className="flex items-center gap-3">

@@ -30,30 +30,35 @@ export default function BuildingScrollCanvas({
   showLoadingOverlay = true,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const [images, setImages] = useState<(HTMLImageElement | null)[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
 
-  // Preload images: PNG only
+  // Progressively preload images instead of blocking on all of them.
+  // This makes first frames usable much sooner on slower networks.
   useEffect(() => {
-    const loadedImages: HTMLImageElement[] = [];
-    let resolved = 0;
-
-    const checkComplete = () => {
-      resolved++;
-      setLoadedCount(resolved);
-      if (resolved === totalFrames) {
-        setImages(loadedImages);
-      }
-    };
+    let cancelled = false;
+    const initial: (HTMLImageElement | null)[] = Array(totalFrames).fill(null);
+    setImages(initial);
+    setLoadedCount(0);
 
     for (let i = 0; i < totalFrames; i++) {
       const num = frameIndexOneBased ? i + 1 : i;
       const frameIndex = num.toString().padStart(3, "0");
       const img = new Image();
-      loadedImages[i] = img;
-      img.onload = checkComplete;
+      img.onload = () => {
+        if (cancelled) return;
+        setLoadedCount((prev) => prev + 1);
+        setImages((prev) => {
+          const next = prev.slice();
+          next[i] = img;
+          return next;
+        });
+      };
       img.src = `${imageFolderPath}/${frameFilePrefix}${frameIndex}${frameFileSuffix}.${fileExtension}`;
     }
+    return () => {
+      cancelled = true;
+    };
   }, [totalFrames, imageFolderPath, frameFilePrefix, frameFileSuffix, frameIndexOneBased, fileExtension]);
 
   const rafRef = useRef<number | null>(null);
@@ -68,8 +73,20 @@ export default function BuildingScrollCanvas({
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const img = images[index] ?? images[0];
-      if (!img?.complete) return;
+      // Prefer the requested index; if it's not loaded yet, fall back
+      // to the nearest loaded frame so scrolling never shows a blank canvas.
+      let img = images[index];
+      if (!img) {
+        for (let i = index; i >= 0 && !img; i--) {
+          img = images[i];
+        }
+      }
+      if (!img) {
+        for (let i = index + 1; i < images.length && !img; i++) {
+          img = images[i];
+        }
+      }
+      if (!img) return;
 
       const dpr = window.devicePixelRatio || 1;
       const { width, height } = canvas.getBoundingClientRect();
@@ -143,7 +160,7 @@ export default function BuildingScrollCanvas({
       />
       
       {/* Loading Overlay */}
-      {showLoadingOverlay && loadedCount < totalFrames && (
+      {showLoadingOverlay && loadedCount < Math.min(24, totalFrames) && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0b0b0b] z-20">
           <div className="text-center">
             <div className="w-48 h-[2px] bg-neutral-gray relative overflow-hidden mb-4">

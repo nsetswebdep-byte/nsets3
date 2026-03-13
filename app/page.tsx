@@ -79,10 +79,10 @@ export default function Home() {
                   From architectural blueprints to fully integrated smart environments, we deliver end-to-end 
                   solutions for the modern era.
                 </p>
-                <button className="group flex items-center gap-4 text-xs font-bold tracking-[0.3em] hover:text-accent-blue transition-colors">
+                <Link href="/about" className="group flex items-center gap-4 text-xs font-bold tracking-[0.3em] hover:text-accent-blue transition-colors">
                   LEARN OUR STORY
                   <div className="w-8 h-[1px] bg-accent-light group-hover:bg-accent-blue group-hover:w-12 transition-all" />
-                </button>
+                </Link>
               </div>
               <div className="hud-border p-1 bg-neutral-gray/20 mt-8 md:mt-0">
                 <div className="aspect-square w-full max-w-[280px] md:max-w-none mx-auto bg-neutral-gray/10 flex items-center justify-center border border-white/5 relative overflow-hidden">

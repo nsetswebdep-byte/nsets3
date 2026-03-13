@@ -1,72 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-
-const IMG_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-const IMG_BASE = "/images/sequence/";
-
-function SeqImage({
-  name,
-  alt,
-  className,
-}: {
-  name: string;
-  alt: string;
-  className?: string;
-}) {
-  const [extIndex, setExtIndex] = useState(0);
-  const [failed, setFailed] = useState(false);
-  const [src, setSrc] = useState<string | null>(null);
-  const tryingRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const ext = IMG_EXTENSIONS[extIndex];
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}${IMG_BASE}${name}${ext}`
-        : `${IMG_BASE}${name}${ext}`;
-    setSrc(url);
-    tryingRef.current = url;
-  }, [name, extIndex]);
-
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.src !== tryingRef.current) return;
-    if (extIndex < IMG_EXTENSIONS.length - 1) {
-      setExtIndex((i) => i + 1);
-    } else {
-      setFailed(true);
-    }
-  };
-
-  if (failed) {
-    return (
-      <div className="flex w-full h-full min-h-[200px] items-center justify-center bg-neutral-gray/40 text-accent-light/40 text-sm text-center px-4">
-        Add image: public/images/sequence/{name}.jpg
-      </div>
-    );
-  }
-  if (src === null) {
-    return (
-      <div
-        className="w-full h-full min-h-[200px] bg-neutral-gray/20 animate-pulse"
-        aria-hidden
-      />
-    );
-  }
-  return (
-    <img
-      key={src}
-      src={src}
-      alt={alt}
-      className={className}
-      onError={handleError}
-      loading="eager"
-    />
-  );
-}
+import SeqImage from "@/components/SeqImage";
 
 const PLC_MEMORY_MAP = [
   "Input/Output Relay",

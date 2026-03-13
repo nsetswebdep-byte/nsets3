@@ -1,57 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import PdfBookViewer from "@/components/PdfBookViewer";
-
-const IMG_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
-const IMG_BASE = "/images/sequence/";
-
-function SeqImage({
-  name,
-  alt,
-  className,
-}: {
-  name: string;
-  alt: string;
-  className?: string;
-}) {
-  const [extIndex, setExtIndex] = useState(0);
-  const [failed, setFailed] = useState(false);
-  const [src, setSrc] = useState<string | null>(null);
-  const tryingRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const ext = IMG_EXTENSIONS[extIndex];
-    const encodedName = encodeURIComponent(name);
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}${IMG_BASE}${encodedName}${ext}`
-        : `${IMG_BASE}${encodedName}${ext}`;
-    setSrc(url);
-    tryingRef.current = url;
-  }, [name, extIndex]);
-
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.src !== tryingRef.current) return;
-    if (extIndex < IMG_EXTENSIONS.length - 1) setExtIndex((i) => i + 1);
-    else setFailed(true);
-  };
-
-  if (failed)
-    return (
-      <div className="flex min-h-[200px] w-full items-center justify-center bg-neutral-gray/40 text-center text-sm text-accent-light/40">
-        Add image: public/images/sequence/{name}.jpg
-      </div>
-    );
-  if (src === null)
-    return <div className="min-h-[200px] w-full animate-pulse bg-neutral-gray/20" aria-hidden />;
-  return (
-    <img key={src} src={src} alt={alt} className={className} onError={handleError} loading="eager" />
-  );
-}
+import SeqImage from "@/components/SeqImage";
 
 const CONTROL_CARDS = [
   {
@@ -213,7 +166,7 @@ export default function HomeAutomationPage() {
               <div className="mt-auto w-full max-w-sm rounded-lg border border-white/10 bg-black/30 p-4">
                 <p className="mb-3 text-[10px] font-bold tracking-widest text-accent-light/50 uppercase">VRV AC panel</p>
                 <div className="relative flex min-h-[140px] items-center justify-center overflow-hidden rounded">
-                  <SeqImage name="maxd2" alt="VRV AC panel" className="max-h-[140px] max-w-full object-contain" />
+                  <SeqImage name="maxd2" alt="VRV AC panel" className="max-h-[140px] max-w-full object-contain" encodeName />
                 </div>
               </div>
             </div>
@@ -224,6 +177,7 @@ export default function HomeAutomationPage() {
                   name="maxd"
                   alt="MixPad X Full Screen Super Smart Panel"
                   className="w-full max-h-[65vh] object-contain"
+                  encodeName
                 />
               </div>
             </div>
@@ -241,6 +195,7 @@ export default function HomeAutomationPage() {
                 name="mixpadm2"
                 alt="MixPad M2 Smart Voice Control Panel"
                 className="max-h-[420px] w-full max-w-md object-contain"
+                encodeName
               />
             </div>
             <div>
@@ -286,6 +241,7 @@ export default function HomeAutomationPage() {
                   name="smartdoorlock"
                   alt="OLOCK Smart Door Lock"
                   className="max-h-[280px] w-full max-w-sm object-contain"
+                  encodeName
                 />
               </div>
               
@@ -310,6 +266,7 @@ export default function HomeAutomationPage() {
                 name="activeintelligence"
                 alt="MixPad S Active intelligence"
                 className="max-h-[360px] w-full object-contain"
+                encodeName
               />
             </div>
             <div className="relative flex w-full max-w-sm min-h-[140px] items-center justify-center overflow-hidden p-6">
@@ -317,6 +274,7 @@ export default function HomeAutomationPage() {
                 name="grey"
                 alt="MixPad S Grey"
                 className="max-h-[200px] w-full object-contain"
+                encodeName
               />
             </div>
           </div>
@@ -338,6 +296,7 @@ export default function HomeAutomationPage() {
                   name="smartsecurity1"
                   alt="ORVIBO Smart Door Lock S2"
                   className="max-h-[320px] w-full object-contain"
+                  encodeName
                 />
               </div>
               <p className="mt-4 text-xs font-bold tracking-widest text-accent-blue">
@@ -368,6 +327,7 @@ export default function HomeAutomationPage() {
                 name="smartsecurity2"
                 alt="ORVIBO Smart Door Lock on door"
                 className="max-h-[380px] w-full object-contain"
+                encodeName
               />
             </div>
           </div>
@@ -386,6 +346,7 @@ export default function HomeAutomationPage() {
               name="smartcamera"
               alt="Smart Camera"
               className="max-h-[280px] w-full object-contain"
+              encodeName
             />
           </div>
           <div className="mb-16 h-px bg-white/10" />
@@ -404,6 +365,7 @@ export default function HomeAutomationPage() {
                       name={item.name}
                       alt={item.label}
                       className="max-h-[160px] w-full object-contain"
+                      encodeName
                     />
                   </div>
                   <p className="p-3 text-center text-sm font-medium text-accent-light/80">
@@ -426,6 +388,7 @@ export default function HomeAutomationPage() {
                 name="ha1"
                 alt="Smart Lighting & Track"
                 className="max-h-[340px] w-full object-contain"
+                encodeName
               />
             </div>
             <div className="relative flex min-h-[200px] items-center justify-center overflow-hidden">
@@ -433,6 +396,7 @@ export default function HomeAutomationPage() {
                 name="ha2"
                 alt="Smart Lighting & Track"
                 className="max-h-[280px] w-full object-contain"
+                encodeName
               />
             </div>
             <div className="relative flex min-h-[200px] items-center justify-center overflow-hidden">
@@ -440,6 +404,7 @@ export default function HomeAutomationPage() {
                 name="ha3"
                 alt="Smart Lighting & Track"
                 className="max-h-[280px] w-full object-contain"
+                encodeName
               />
             </div>
           </div>
