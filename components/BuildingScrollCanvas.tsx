@@ -29,6 +29,11 @@ export default function BuildingScrollCanvas({
   fileExtension = "png",
   showLoadingOverlay = true,
 }: Props) {
+  // Number of frames we try to load eagerly on initial page load.
+  // Remaining frames are loaded later in small batches so the
+  // initial experience is fast even on slower networks.
+  const EAGER_FRAME_COUNT = 60;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<(HTMLImageElement | null)[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
@@ -41,7 +46,7 @@ export default function BuildingScrollCanvas({
     setImages(initial);
     setLoadedCount(0);
 
-    for (let i = 0; i < totalFrames; i++) {
+    const loadFrame = (i: number) => {
       const num = frameIndexOneBased ? i + 1 : i;
       const frameIndex = num.toString().padStart(3, "0");
       const img = new Image();
@@ -55,9 +60,39 @@ export default function BuildingScrollCanvas({
         });
       };
       img.src = `${imageFolderPath}/${frameFilePrefix}${frameIndex}${frameFileSuffix}.${fileExtension}`;
+    };
+
+    const eagerCount = Math.min(EAGER_FRAME_COUNT, totalFrames);
+    for (let i = 0; i < eagerCount; i++) {
+      loadFrame(i);
     }
+
+    // Load the remaining frames in small batches with a short delay
+    // so they don't compete with the critical initial frames.
+    let nextIndex = eagerCount;
+    const BATCH_SIZE = 24;
+    const BATCH_DELAY_MS = 150;
+    let timeoutId: number | null = null;
+
+    const scheduleBatch = () => {
+      if (cancelled || nextIndex >= totalFrames) return;
+      const end = Math.min(nextIndex + BATCH_SIZE, totalFrames);
+      for (let i = nextIndex; i < end; i++) {
+        loadFrame(i);
+      }
+      nextIndex = end;
+      if (nextIndex < totalFrames && !cancelled) {
+        timeoutId = window.setTimeout(scheduleBatch, BATCH_DELAY_MS);
+      }
+    };
+
+    scheduleBatch();
+
     return () => {
       cancelled = true;
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, [totalFrames, imageFolderPath, frameFilePrefix, frameFileSuffix, frameIndexOneBased, fileExtension]);
 
@@ -160,20 +195,20 @@ export default function BuildingScrollCanvas({
       />
       
       {/* Loading Overlay – only cares about the first few frames */}
-      {showLoadingOverlay && loadedCount < Math.min(12, totalFrames) && (
+      {showLoadingOverlay && loadedCount < Math.min(24, totalFrames) && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0b0b0b] z-20">
           <div className="text-center">
             <div className="w-48 h-[2px] bg-neutral-gray relative overflow-hidden mb-4">
               <motion.div 
                 className="absolute inset-0 bg-accent-blue"
                 initial={{ x: "-100%" }}
-                animate={{ x: `${(Math.min(loadedCount, 12) / Math.min(12, totalFrames)) * 100 - 100}%` }}
+                animate={{ x: `${(Math.min(loadedCount, 24) / Math.min(24, totalFrames)) * 100 - 100}%` }}
               />
             </div>
             <p className="font-orbitron text-[10px] tracking-[0.5em] text-accent-light/50">
               OPTIMIZING EXPERIENCE...{" "}
               {Math.round(
-                (Math.min(loadedCount, 12) / Math.min(12, totalFrames)) * 100
+                (Math.min(loadedCount, 24) / Math.min(24, totalFrames)) * 100
               )}
               %
             </p>
