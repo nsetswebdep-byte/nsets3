@@ -43,6 +43,7 @@ export default function Home() {
             imageFolderPath="/images/sequence/newframes2"
             frameFilePrefix="ezgif-frame-"
             frameIndexOneBased
+            showLoadingOverlay={false}
           />
         </div>
         <BuildingExperience scrollYProgress={smoothProgress} />

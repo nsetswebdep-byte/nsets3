@@ -159,19 +159,23 @@ export default function BuildingScrollCanvas({
         aria-hidden="true"
       />
       
-      {/* Loading Overlay */}
-      {showLoadingOverlay && loadedCount < Math.min(24, totalFrames) && (
+      {/* Loading Overlay – only cares about the first few frames */}
+      {showLoadingOverlay && loadedCount < Math.min(12, totalFrames) && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0b0b0b] z-20">
           <div className="text-center">
             <div className="w-48 h-[2px] bg-neutral-gray relative overflow-hidden mb-4">
               <motion.div 
                 className="absolute inset-0 bg-accent-blue"
                 initial={{ x: "-100%" }}
-                animate={{ x: `${(loadedCount / totalFrames) * 100 - 100}%` }}
+                animate={{ x: `${(Math.min(loadedCount, 12) / Math.min(12, totalFrames)) * 100 - 100}%` }}
               />
             </div>
             <p className="font-orbitron text-[10px] tracking-[0.5em] text-accent-light/50">
-              OPTIMIZING EXPERIENCE... {Math.round((loadedCount / totalFrames) * 100)}%
+              OPTIMIZING EXPERIENCE...{" "}
+              {Math.round(
+                (Math.min(loadedCount, 12) / Math.min(12, totalFrames)) * 100
+              )}
+              %
             </p>
           </div>
         </div>
