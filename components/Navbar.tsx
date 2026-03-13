@@ -13,14 +13,20 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const allNavItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  disabled?: boolean;
+};
+
+const allNavItems: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Home automation", href: "/home-automation" },
   { label: "uPVC", href: "/upvc", disabled: true },
   { label: "Lab & equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
-] as const;
+];
 
 const navItems = SHOW_ALL_PAGES ? allNavItems : allNavItems.filter((item) => item.href === "/");
 

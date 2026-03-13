@@ -4,7 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
 
-const ALL_FOOTER_LINKS = [
+type FooterLink = {
+  label: string;
+  href: string;
+  disabled?: boolean;
+};
+
+const ALL_FOOTER_LINKS: FooterLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Home Automation", href: "/home-automation" },
