@@ -19,6 +19,12 @@ interface Props {
   showLoadingOverlay?: boolean;
   /** Optional darkening overlay (0–1). 0 = none. */
   darkenOverlayOpacity?: number;
+  /** When true, show a full-screen loader until enough frames are loaded (and minDisplayTimeMs has passed) to avoid scroll glitches. */
+  preloadBeforeShow?: boolean;
+  /** Minimum time (ms) to show the preload screen, e.g. 5000–10000. Only used when preloadBeforeShow is true. */
+  minDisplayTimeMs?: number;
+  /** Consider ready when this ratio of frames is loaded (0–1), e.g. 0.95. Only used when preloadBeforeShow is true. */
+  targetLoadRatio?: number;
 }
 
 export default function BuildingScrollCanvas({
@@ -31,23 +37,59 @@ export default function BuildingScrollCanvas({
   fileExtension = "png",
   showLoadingOverlay = true,
   darkenOverlayOpacity = 0,
+  preloadBeforeShow = false,
+  minDisplayTimeMs = 4000,
+  targetLoadRatio = 0.95,
 }: Props) {
-  // Number of frames we try to load eagerly on initial page load.
-  // Remaining frames are loaded later in small batches so the
-  // initial experience is fast even on slower networks.
   const EAGER_FRAME_COUNT = 60;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<(HTMLImageElement | null)[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
+  const [isExperienceReady, setIsExperienceReady] = useState(!preloadBeforeShow);
+  const startTimeRef = useRef<number>(Date.now());
+  const loadedCountRef = useRef(0);
+  loadedCountRef.current = loadedCount;
 
-  // Progressively preload images instead of blocking on all of them.
-  // This makes first frames usable much sooner on slower networks.
+  useEffect(() => {
+    if (preloadBeforeShow) {
+      startTimeRef.current = Date.now();
+      setIsExperienceReady(false);
+    }
+  }, [preloadBeforeShow]);
+
+  // Poll until both min time and frame count are met (effect only runs on dep change, so we need a timer)
+  useEffect(() => {
+    if (!preloadBeforeShow || isExperienceReady) return;
+    const minLoaded = Math.ceil(totalFrames * targetLoadRatio);
+    const check = () => {
+      const currentLoaded = loadedCountRef.current;
+      const elapsed = Date.now() - startTimeRef.current;
+      if (currentLoaded >= minLoaded && elapsed >= minDisplayTimeMs) {
+        setIsExperienceReady(true);
+      }
+    };
+    check();
+    const interval = setInterval(check, 300);
+    return () => clearInterval(interval);
+  }, [preloadBeforeShow, isExperienceReady, totalFrames, targetLoadRatio, minDisplayTimeMs]);
+
+  // Prevent scroll while preload overlay is visible
+  useEffect(() => {
+    if (!preloadBeforeShow || isExperienceReady) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [preloadBeforeShow, isExperienceReady]);
+
   useEffect(() => {
     let cancelled = false;
     const initial: (HTMLImageElement | null)[] = Array(totalFrames).fill(null);
     setImages(initial);
     setLoadedCount(0);
+    if (preloadBeforeShow) startTimeRef.current = Date.now();
 
     const loadFrame = (i: number) => {
       const num = frameIndexOneBased ? i + 1 : i;
@@ -55,7 +97,7 @@ export default function BuildingScrollCanvas({
       const img = new Image();
       img.onload = () => {
         if (cancelled) return;
-        setLoadedCount((prev) => prev + 1);
+        setLoadedCount((prev) => Math.min(totalFrames, prev + 1));
         setImages((prev) => {
           const next = prev.slice();
           next[i] = img;
@@ -65,51 +107,66 @@ export default function BuildingScrollCanvas({
       img.src = `${imageFolderPath}/${frameFilePrefix}${frameIndex}${frameFileSuffix}.${fileExtension}`;
     };
 
-    const eagerCount = Math.min(EAGER_FRAME_COUNT, totalFrames);
-    for (let i = 0; i < eagerCount; i++) {
-      loadFrame(i);
+    if (preloadBeforeShow) {
+      const BATCH = 48;
+      let idx = 0;
+      const schedule = () => {
+        if (cancelled) return;
+        const end = Math.min(idx + BATCH, totalFrames);
+        for (let i = idx; i < end; i++) loadFrame(i);
+        idx = end;
+        if (idx < totalFrames) setTimeout(schedule, 30);
+      };
+      schedule();
+      return () => { cancelled = true; };
     }
 
-    // Load the remaining frames in small batches with a short delay
-    // so they don't compete with the critical initial frames.
+    const eagerCount = Math.min(EAGER_FRAME_COUNT, totalFrames);
+    for (let i = 0; i < eagerCount; i++) loadFrame(i);
+
     let nextIndex = eagerCount;
     const BATCH_SIZE = 24;
     const BATCH_DELAY_MS = 150;
     let timeoutId: number | null = null;
-
     const scheduleBatch = () => {
       if (cancelled || nextIndex >= totalFrames) return;
       const end = Math.min(nextIndex + BATCH_SIZE, totalFrames);
-      for (let i = nextIndex; i < end; i++) {
-        loadFrame(i);
-      }
+      for (let i = nextIndex; i < end; i++) loadFrame(i);
       nextIndex = end;
       if (nextIndex < totalFrames && !cancelled) {
         timeoutId = window.setTimeout(scheduleBatch, BATCH_DELAY_MS);
       }
     };
-
     scheduleBatch();
 
     return () => {
       cancelled = true;
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
-      }
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [totalFrames, imageFolderPath, frameFilePrefix, frameFileSuffix, frameIndexOneBased, fileExtension]);
+  }, [totalFrames, imageFolderPath, frameFilePrefix, frameFileSuffix, frameIndexOneBased, fileExtension, preloadBeforeShow]);
 
   const rafRef = useRef<number | null>(null);
   const latestProgressRef = useRef(0);
   const sizeRef = useRef({ width: 0, height: 0, dpr: 1 });
+
+  // Invalidate canvas size when preload overlay hides so next paint re-measures
+  useEffect(() => {
+    if (preloadBeforeShow && isExperienceReady) {
+      sizeRef.current = { width: 0, height: 0, dpr: 1 };
+    }
+  }, [preloadBeforeShow, isExperienceReady]);
 
   const renderFrame = useCallback(
     (index: number) => {
       const canvas = canvasRef.current;
       if (!canvas || images.length === 0) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { alpha: false });
       if (!ctx) return;
+
+      // High-quality scaling for clearer, less glitchy frames
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
       // Prefer the requested index; if it's not loaded yet, fall back
       // to the nearest loaded frame so scrolling never shows a blank canvas.
@@ -127,15 +184,21 @@ export default function BuildingScrollCanvas({
       if (!img) return;
 
       const dpr = window.devicePixelRatio || 1;
-      const { width, height } = canvas.getBoundingClientRect();
+      let { width, height } = canvas.getBoundingClientRect();
+      if (width <= 0 || height <= 0) {
+        width = canvas.parentElement?.clientWidth ?? typeof window !== "undefined" ? window.innerWidth : 800;
+        height = canvas.parentElement?.clientHeight ?? typeof window !== "undefined" ? window.innerHeight : 600;
+      }
 
       // Only resize canvas when dimensions actually change (avoids layout thrash during scroll)
       if (sizeRef.current.width !== width || sizeRef.current.height !== height || sizeRef.current.dpr !== dpr) {
         sizeRef.current = { width, height, dpr };
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.scale(dpr, dpr);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
       }
 
       const imgRatio = img.width / img.height;
@@ -189,6 +252,30 @@ export default function BuildingScrollCanvas({
     return () => window.removeEventListener("resize", handleResize);
   }, [images, totalFrames, scrollYProgress, renderFrame]);
 
+  // When preload overlay hides, force paint current frame so the canvas isn't left black.
+  // Delay slightly so layout has completed and getBoundingClientRect() returns non-zero.
+  useEffect(() => {
+    if (!preloadBeforeShow || !isExperienceReady || images.length === 0) return;
+    const paint = () => {
+      const progress = scrollYProgress.get();
+      const frameIndex = Math.min(
+        totalFrames - 1,
+        Math.max(0, Math.floor(progress * (totalFrames - 1)))
+      );
+      renderFrame(frameIndex);
+    };
+    const t1 = setTimeout(paint, 50);
+    const t2 = setTimeout(paint, 200);
+    const t3 = requestAnimationFrame(() => {
+      requestAnimationFrame(paint);
+    });
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      cancelAnimationFrame(t3);
+    };
+  }, [preloadBeforeShow, isExperienceReady, images.length, totalFrames, scrollYProgress, renderFrame]);
+
   return (
     <div className="relative w-full h-full bg-[#0b0b0b] transform-gpu will-change-transform">
       <canvas
@@ -196,6 +283,30 @@ export default function BuildingScrollCanvas({
         className="w-full h-full block object-contain transform-gpu"
         aria-hidden="true"
       />
+
+      {/* Full-screen preload: blocks interaction until enough frames loaded + min time */}
+      {preloadBeforeShow && !isExperienceReady && (
+        <div
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0b0b0b] pointer-events-auto"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="w-56 sm:w-64 h-1 bg-white/10 rounded-full overflow-hidden mb-6">
+            <motion.div
+              className="h-full bg-accent-blue rounded-full"
+              initial={{ width: "0%" }}
+              animate={{
+                width: `${Math.min(100, (Math.min(loadedCount, totalFrames) / totalFrames) * 100)}%`,
+              }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          <p className="font-orbitron text-[10px] sm:text-xs tracking-[0.4em] text-accent-light/70 mb-1">
+            LOADING EXPERIENCE
+          </p>
+          
+        </div>
+      )}
 
       {darkenOverlayOpacity > 0 && (
         <div

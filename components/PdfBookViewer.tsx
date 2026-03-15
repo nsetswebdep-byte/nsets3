@@ -23,6 +23,7 @@ export default function PdfBookViewer({
   const [isDrawing, setIsDrawing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
 
   const goPrev = () => setPage((p) => Math.max(1, p - 1));
   const goNext = () => setPage((p) => Math.min(totalPages, p + 1));
@@ -116,14 +117,26 @@ export default function PdfBookViewer({
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        await pdfPage.render({
+        // Cancel any in-flight render so we don't use the same canvas for multiple renders
+        if (renderTaskRef.current) {
+          renderTaskRef.current.cancel();
+          renderTaskRef.current = null;
+        }
+
+        const task = pdfPage.render({
           canvasContext: ctx,
           viewport,
-        }).promise;
+        });
+        renderTaskRef.current = task;
 
-        if (!cancelled) setIsDrawing(false);
+        await task.promise;
+
+        if (cancelled) return;
+        renderTaskRef.current = null;
+        setIsDrawing(false);
       } catch (e) {
         if (!cancelled) {
+          renderTaskRef.current = null;
           setError(e instanceof Error ? e.message : "Failed to load PDF");
           setIsDrawing(false);
         }
@@ -132,6 +145,10 @@ export default function PdfBookViewer({
 
     return () => {
       cancelled = true;
+      if (renderTaskRef.current) {
+        renderTaskRef.current.cancel();
+        renderTaskRef.current = null;
+      }
     };
   }, [src, page, containerSize]);
 

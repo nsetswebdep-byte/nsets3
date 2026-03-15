@@ -23,7 +23,7 @@ const allNavItems: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Home automation", href: "/home-automation" },
-  { label: "uPVC", href: "/upvc", disabled: true },
+  { label: "uPVC", href: "/upvc" },
   { label: "Lab & equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
 ];

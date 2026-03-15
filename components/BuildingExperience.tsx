@@ -2,6 +2,7 @@
 
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { BUILDING_PHASES } from "@/data/buildingData";
+import { NAVBAR_HEIGHT_PX } from "@/lib/siteConfig";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -10,7 +11,10 @@ interface Props {
 
 export default function BuildingExperience({ scrollYProgress }: Props) {
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-16">
+    <div
+      className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-16"
+      style={{ paddingTop: `${NAVBAR_HEIGHT_PX}px` }}
+    >
       <div className="flex justify-end items-start">
         <motion.div className="font-orbitron text-2xl sm:text-3xl md:text-4xl font-black text-accent-light opacity-20">
           <ScrollPercent scrollYProgress={scrollYProgress} />

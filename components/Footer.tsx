@@ -14,7 +14,7 @@ const ALL_FOOTER_LINKS: FooterLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Home Automation", href: "/home-automation" },
-  { label: "uPVC", href: "/upvc", disabled: true },
+  { label: "uPVC", href: "/upvc" },
   { label: "Lab & Equipment", href: "/lab-equipment" },
   { label: "Contact", href: "/contact" },
 ];

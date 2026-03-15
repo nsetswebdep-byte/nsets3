@@ -3,8 +3,9 @@
 import { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { motion, useTransform, type MotionValue } from "framer-motion";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
+import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
 import { generateLabEquipmentProfilePdf } from "@/lib/labEquipmentProfilePdf";
 
 const LAB_TOTAL_FRAMES = 242;
@@ -101,29 +102,17 @@ export default function LabEquipmentPage() {
     }
   }
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 260,
-    damping: 28,
-    restDelta: 0.001,
-    restSpeed: 0.002,
-  });
-
-  const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0.3, 0]);
+  const { scrollYProgress, smoothProgress, scrollIndicatorOpacity } = useFrameScrollProgress(containerRef);
 
   return (
     <main className="relative bg-[#0b0b0b] min-h-screen text-accent-light selection:bg-accent-blue selection:text-white">
       <Navbar />
 
-      {/* Fixed Background — video scrolls with page */}
-      <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint">
+      {/* Fixed Background — frame-viewport for mobile */}
+      <div className="fixed inset-0 w-full overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint frame-viewport">
         <div className="absolute inset-0 will-change-transform transform-gpu">
           <BuildingScrollCanvas
-            scrollYProgress={smoothProgress}
+            scrollYProgress={scrollYProgress}
             totalFrames={LAB_TOTAL_FRAMES}
             imageFolderPath="/images/sequence/labequipmentframes"
             frameFilePrefix="frame_"
@@ -131,6 +120,9 @@ export default function LabEquipmentPage() {
             fileExtension="webp"
             darkenOverlayOpacity={0.3}
             showLoadingOverlay={false}
+            preloadBeforeShow
+            minDisplayTimeMs={6000}
+            targetLoadRatio={0.45}
           />
         </div>
         {/* Bottom-left phase titles animating with scroll */}
@@ -150,7 +142,7 @@ export default function LabEquipmentPage() {
 
       <div className="relative z-20">
 
-        {/* Scroll drivers for phase overlays (no visible text; overlay handles content) */}
+        {/* Scroll drivers for phase overlays; touch-none so mobile scroll drives frames */}
         <section ref={containerRef} aria-hidden="true">
           {SCROLL_REVEAL_STEPS.map((_, i) => (
             <div
@@ -168,7 +160,7 @@ export default function LabEquipmentPage() {
 
 function LabEquipmentOverlay({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16">
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 lg:pl-20 lg:pr-20 xl:pl-24 xl:pr-24">
       {LAB_PHASES.map((phase, index) => (
         <LabPhaseBlock
           key={phase.title}
@@ -212,24 +204,26 @@ function LabPhaseBlock({
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 text-left"
+      className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 lg:pl-20 lg:pr-20 xl:pl-24 xl:pr-24 text-left"
     >
       <div className="w-full flex flex-col md:flex-row justify-between gap-6 md:gap-12">
-        <div className="max-w-xl">
-          <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
+        <div className="max-w-xl pl-2 sm:pl-4">
+          <span className="font-orbitron text-xs font-semibold tracking-[0.4em] text-blue-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] mb-3 block">
             {phase.label}
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-2">
+          <h2 className="text-2xl sm:text-2xl md:text-4xl lg:text-6xl font-black mb-1 sm:mb-2 leading-none uppercase tracking-tighter">
             {phase.title}
           </h2>
         </div>
         {phase.summary && (
-          <div className="ml-auto max-w-xl text-[11px] sm:text-xs md:text-sm text-accent-light/80 space-y-1 md:space-y-2 text-right">
-            {phase.summary.map((line, idx) => (
-              <p key={idx} className="leading-relaxed">
-                {line}
-              </p>
-            ))}
+          <div className="ml-auto max-w-xl min-w-0 rounded-lg bg-black/25 backdrop-blur-sm px-4 py-3 pr-4 sm:pr-6 text-right">
+            <div className="text-[11px] sm:text-xs md:text-sm text-accent-light drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] space-y-1 md:space-y-2">
+              {phase.summary.map((line, idx) => (
+                <p key={idx} className="leading-relaxed">
+                  {line}
+                </p>
+              ))}
+            </div>
           </div>
         )}
       </div>

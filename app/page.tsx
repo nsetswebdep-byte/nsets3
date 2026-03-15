@@ -3,7 +3,8 @@
 import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useScroll, motion, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
+import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
@@ -13,23 +14,7 @@ import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
 
 export default function Home() {
   const containerRef = useRef<HTMLElement>(null);
-  
-  // Master scroll progress for the sequence
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  // Single smooth scroll value for canvas + HUD — responsive but smooth (no jitter, minimal delay)
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 260,
-    damping: 28,
-    restDelta: 0.001,
-    restSpeed: 0.002,
-  });
-
-  // Scroll indicator fades out as user scrolls (must be at top level to avoid re-render loops)
-  const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0.3, 0]);
+  const { scrollYProgress, smoothProgress, scrollIndicatorOpacity } = useFrameScrollProgress(containerRef);
 
   return (
     <main className="relative bg-[#0b0b0b] min-h-screen text-accent-light selection:bg-accent-blue selection:text-white">
@@ -39,7 +24,7 @@ export default function Home() {
       <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint">
         <div className="absolute inset-0 will-change-transform transform-gpu">
           <BuildingScrollCanvas
-            scrollYProgress={smoothProgress}
+            scrollYProgress={scrollYProgress}
             totalFrames={TOTAL_FRAMES}
             imageFolderPath="/images/sequence/newframes3"
             frameFilePrefix="frame_"
@@ -47,13 +32,16 @@ export default function Home() {
             fileExtension="webp"
             darkenOverlayOpacity={0.20}
             showLoadingOverlay={false}
+            preloadBeforeShow
+            minDisplayTimeMs={6000}
+            targetLoadRatio={0.45}
           />
         </div>
         <BuildingExperience scrollYProgress={smoothProgress} />
       </div>
 
-      {/* Scrollable Content Spacer - Drives the sequence */}
-      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none">
+      {/* Scrollable Content Spacer - Drives the sequence; touch-none so mobile scroll drives frames */}
+      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none" aria-hidden="true">
         {/* Subtle scroll indicator */}
         <motion.div
           className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 sm:gap-2 opacity-30 sm:bottom-8"
@@ -88,8 +76,8 @@ export default function Home() {
                   <div className="w-8 h-[1px] bg-accent-light group-hover:bg-accent-blue group-hover:w-12 transition-all" />
                 </Link>
               </div>
-              <div className="hud-border p-1 bg-neutral-gray/20 mt-8 md:mt-0">
-                <div className="aspect-square w-full max-w-[280px] md:max-w-none mx-auto bg-neutral-gray/10 flex items-center justify-center border border-white/5 relative overflow-hidden">
+              <div className="mt-8 md:mt-0 overflow-hidden rounded-xl md:rounded-2xl ring-1 ring-white/10 ring-inset shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+                <div className="aspect-square w-full max-w-[280px] md:max-w-none mx-auto flex items-center justify-center relative overflow-hidden">
                   <Image
                     src="/images/sequence/buildfuture.png"
                     alt="N-SETS - We build the future of living"

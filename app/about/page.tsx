@@ -111,7 +111,7 @@ export default function AboutPage() {
               NSETS (Pvt.) Ltd. is a DGDP-registered, SPD security-cleared general order supplier established in 2015, trusted for precision, full regulatory compliance, and defense-focused procurement for government and semi-government institutions, and serves as an authorized distributor and global partner for leading brands in uPVC, smart home solutions, and training equipment.
             </p>
             <a
-              href="/companyprofile.pdf"
+              href="/images/sequence/companyprofile.pdf"
               download
               className="inline-block px-10 py-3 sm:py-4 bg-[#0b4e9b] hover:bg-accent-blue/90 text-white font-bold text-xs sm:text-sm tracking-[0.25em] transition-colors border border-white/10 rounded-md sm:rounded-lg"
             >

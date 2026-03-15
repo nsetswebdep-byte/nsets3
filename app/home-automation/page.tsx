@@ -7,7 +7,9 @@ import Link from "next/link";
 import PdfBookViewer from "@/components/PdfBookViewer";
 import SeqImage from "@/components/SeqImage";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
-import { useScroll, useSpring, useTransform, motion, type MotionValue } from "framer-motion";
+import { motion, useTransform, type MotionValue } from "framer-motion";
+import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
+import { NAVBAR_HEIGHT_PX } from "@/lib/siteConfig";
 
 const CONTROL_CARDS = [
   {
@@ -90,45 +92,38 @@ const HOME_AUTO_PHASES: HomeAutoPhase[] = [
 
 export default function HomeAutomationPage() {
   const containerRef = useRef<HTMLElement | null>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 260,
-    damping: 28,
-    restDelta: 0.001,
-    restSpeed: 0.002,
-  });
-
-  const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0.3, 0]);
+  const { scrollYProgress, smoothProgress, scrollIndicatorOpacity } = useFrameScrollProgress(containerRef);
 
   return (
     <main className="relative min-h-screen bg-[#0b0b0b] text-accent-light selection:bg-accent-blue selection:text-white">
       <Navbar />
 
-      {/* Fixed Background Sequence */}
-      <div className="fixed inset-0 w-full h-screen overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint">
+      {/* Fixed Background Sequence — starts below navbar so frames aren't cut; frame-viewport-below-nav for mobile */}
+      <div
+        className="fixed left-0 right-0 w-full overflow-hidden pointer-events-none z-0 will-change-transform transform-gpu contain-paint frame-viewport-below-nav"
+        style={{ top: NAVBAR_HEIGHT_PX }}
+      >
         <div className="absolute inset-0 will-change-transform transform-gpu">
           <BuildingScrollCanvas
-            scrollYProgress={smoothProgress}
+            scrollYProgress={scrollYProgress}
             totalFrames={HOME_AUTO_TOTAL_FRAMES}
             imageFolderPath="/images/sequence/homeautomation"
             frameFilePrefix="frame_"
             frameFileSuffix="_delay-0.041s"
             fileExtension="webp"
-            darkenOverlayOpacity={0.35}
+            darkenOverlayOpacity={0.2}
             showLoadingOverlay={false}
+            preloadBeforeShow
+            minDisplayTimeMs={6000}
+            targetLoadRatio={0.45}
           />
         </div>
         {/* Text overlay pinned over the sequence, phase-based like home page */}
         <HomeAutomationOverlay scrollYProgress={smoothProgress} />
       </div>
 
-      {/* Scrollable Content Spacer - Drives the sequence */}
-      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none">
+      {/* Scrollable Content Spacer - Drives the sequence; touch-action so mobile scroll works */}
+      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none" aria-hidden="true">
         <motion.div
           className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 sm:gap-2 opacity-30 sm:bottom-8"
           animate={{ y: [0, 5, 0] }}
@@ -486,7 +481,7 @@ export default function HomeAutomationPage() {
             <div className="w-full">
               <h3 className="mb-4 text-lg font-bold text-accent-light">Jie Tech</h3>
               <PdfBookViewer
-                src="/images/sequence/Jietech.pdf"
+                src="/images/sequence/jietech.pdf"
                 totalPages={21}
                 title="Jie Tech catalog"
               />
@@ -525,7 +520,10 @@ export default function HomeAutomationPage() {
         </section>
       </div>
 
-      <Footer />
+      {/* Footer outside content wrapper so it's always visible at bottom */}
+      <div className="relative z-30">
+        <Footer />
+      </div>
     </main>
   );
 }
@@ -554,16 +552,22 @@ function HomeAutomationPhaseBlock({
   index: number;
   scrollYProgress: MotionValue<number>;
 }) {
+  // First phase ("CONTROL EVERYTHING") is visible from the very first frame; others fade in
+  const isFirstPhase = index === 0;
   const opacity = useTransform(
     scrollYProgress,
-    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
-    [0, 1, 1, 0]
+    isFirstPhase
+      ? [phase.threshold[0], phase.threshold[1] - 0.05, phase.threshold[1]]
+      : [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    isFirstPhase ? [1, 1, 0] : [0, 1, 1, 0]
   );
 
   const y = useTransform(
     scrollYProgress,
-    [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
-    [20, 0, 0, -20]
+    isFirstPhase
+      ? [phase.threshold[0], phase.threshold[1] - 0.05, phase.threshold[1]]
+      : [phase.threshold[0], phase.threshold[0] + 0.05, phase.threshold[1] - 0.05, phase.threshold[1]],
+    isFirstPhase ? [0, 0, -20] : [20, 0, 0, -20]
   );
 
   return (
@@ -575,10 +579,10 @@ function HomeAutomationPhaseBlock({
         <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue mb-3 block">
           HOME AUTOMATION
         </span>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight mb-2">
+        <h2 className="text-2xl sm:text-2xl md:text-4xl lg:text-6xl font-black mb-1 sm:mb-2 leading-none uppercase tracking-tighter">
           {phase.title}
         </h2>
-        <p className="text-accent-blue text-[10px] sm:text-xs tracking-[0.35em] uppercase mb-2">
+        <p className="text-accent-blue text-sm sm:text-sm md:text-lg font-medium tracking-[0.3em] sm:tracking-[0.4em] uppercase mb-2">
           {phase.subtitle}
         </p>
         <p className="text-accent-light/70 text-xs sm:text-sm max-w-md">
