@@ -122,7 +122,7 @@ export default function LabEquipmentPage() {
             showLoadingOverlay={false}
             preloadBeforeShow
             minDisplayTimeMs={6000}
-            targetLoadRatio={0.45}
+            targetLoadRatio={0.95}
           />
         </div>
         {/* Bottom-left phase titles animating with scroll */}

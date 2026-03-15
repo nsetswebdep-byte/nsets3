@@ -34,7 +34,7 @@ export default function Home() {
             showLoadingOverlay={false}
             preloadBeforeShow
             minDisplayTimeMs={6000}
-            targetLoadRatio={0.45}
+            targetLoadRatio={0.95}
           />
         </div>
         <BuildingExperience scrollYProgress={smoothProgress} />

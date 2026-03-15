@@ -115,7 +115,7 @@ export default function HomeAutomationPage() {
             showLoadingOverlay={false}
             preloadBeforeShow
             minDisplayTimeMs={6000}
-            targetLoadRatio={0.45}
+            targetLoadRatio={0.95}
           />
         </div>
         {/* Text overlay pinned over the sequence, phase-based like home page */}
