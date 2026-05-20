@@ -69,6 +69,7 @@ function usePhasesVisible(progress: MotionValue<number>) {
 
 /** Soft panel so title, subtitle, and bullets read clearly over the frame sequence. */
 function HudTextPanel({ children }: { children: React.ReactNode }) {
+  
   return (
     <motion.div className="inline-block max-w-full rounded-2xl border border-white/5 bg-[#0b0b0b]/18 px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
       {children}
