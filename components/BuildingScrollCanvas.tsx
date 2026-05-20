@@ -23,8 +23,10 @@ interface Props {
   preloadBeforeShow?: boolean;
   /** Minimum time (ms) to show the preload screen, e.g. 5000–10000. Only used when preloadBeforeShow is true. */
   minDisplayTimeMs?: number;
-  /** Consider ready when this ratio of frames is loaded (0–1), e.g. 0.95. Only used when preloadBeforeShow is true. */
+  /** Consider ready when this ratio of frames are loaded (0–1), e.g. 0.95. Only used when preloadBeforeShow is true. */
   targetLoadRatio?: number;
+  /** Called once when preload finishes and the experience is shown. */
+  onExperienceReady?: () => void;
 }
 
 export default function BuildingScrollCanvas({
@@ -40,6 +42,7 @@ export default function BuildingScrollCanvas({
   preloadBeforeShow = false,
   minDisplayTimeMs = 4000,
   targetLoadRatio = 0.95,
+  onExperienceReady,
 }: Props) {
   const EAGER_FRAME_COUNT = 60;
 
@@ -73,6 +76,16 @@ export default function BuildingScrollCanvas({
     const interval = setInterval(check, 300);
     return () => clearInterval(interval);
   }, [preloadBeforeShow, isExperienceReady, totalFrames, targetLoadRatio, minDisplayTimeMs]);
+
+  const onReadyRef = useRef(onExperienceReady);
+  onReadyRef.current = onExperienceReady;
+  const didFireReadyRef = useRef(false);
+
+  useEffect(() => {
+    if (!isExperienceReady || didFireReadyRef.current) return;
+    didFireReadyRef.current = true;
+    onReadyRef.current?.();
+  }, [isExperienceReady]);
 
   // Prevent scroll while preload overlay is visible
   useEffect(() => {

@@ -1,20 +1,50 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
+import { getSequenceEndScrollY, useHomeIntroAutoScroll } from "@/lib/useHomeIntroAutoScroll";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import BuildingExperience from "@/components/BuildingExperience";
-import { TOTAL_FRAMES } from "@/data/buildingData";
+import { HOME_FRAME_INTERVAL_S, HOME_WELCOME_HOLD_MS, TOTAL_FRAMES } from "@/data/buildingData";
 import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
 
 export default function Home() {
   const containerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress, smoothProgress, scrollIndicatorOpacity } = useFrameScrollProgress(containerRef);
+  const [experienceReady, setExperienceReady] = useState(false);
+  const onExperienceReady = useCallback(() => setExperienceReady(true), []);
+  const { scrollYProgress, smoothProgress } = useFrameScrollProgress(containerRef);
+  const { introComplete } = useHomeIntroAutoScroll(containerRef, {
+    enabled: experienceReady,
+    totalFrames: TOTAL_FRAMES,
+    frameIntervalS: HOME_FRAME_INTERVAL_S,
+    welcomeHoldMs: HOME_WELCOME_HOLD_MS,
+  });
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+
+  useEffect(() => {
+    if (!introComplete) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const endY = getSequenceEndScrollY(container);
+
+    const updateSwipeHint = () => {
+      const y = window.scrollY;
+      // Only at the last frame — hide if user scrolls up into the sequence or down into content
+      const nearSequenceEnd = y >= endY - 40 && y <= endY + 80;
+      setShowSwipeHint(nearSequenceEnd);
+    };
+
+    updateSwipeHint();
+    window.addEventListener("scroll", updateSwipeHint, { passive: true });
+    return () => window.removeEventListener("scroll", updateSwipeHint);
+  }, [introComplete]);
 
   return (
     <main className="relative bg-[#0b0b0b] min-h-screen text-accent-light selection:bg-accent-blue selection:text-white">
@@ -35,24 +65,48 @@ export default function Home() {
             preloadBeforeShow
             minDisplayTimeMs={6000}
             targetLoadRatio={0.95}
+            onExperienceReady={onExperienceReady}
           />
         </div>
-        <BuildingExperience scrollYProgress={smoothProgress} />
+        {experienceReady && (
+          <BuildingExperience
+            scrollYProgress={smoothProgress}
+            visibilityProgress={scrollYProgress}
+            experienceReady
+          />
+        )}
       </div>
 
+      {/* Swipe hint — after intro ends on last frame */}
+      <AnimatePresence>
+        {showSwipeHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="fixed left-1/2 top-[58%] z-30 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 px-6 pointer-events-none sm:top-[60%] sm:gap-4"
+            aria-hidden
+          >
+            <p className="text-center text-sm font-bold tracking-[0.3em] text-accent-light drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] sm:text-base md:text-lg md:tracking-[0.35em]">
+              SWIPE DOWN
+            </p>
+            <p className="text-center text-xs tracking-[0.15em] text-accent-light/80 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] sm:text-sm sm:tracking-[0.2em]">
+              to see more below
+            </p>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="mt-2 flex h-12 w-12 items-center justify-center rounded-full border border-accent-light/30 bg-black/45 backdrop-blur-md sm:mt-3 sm:h-14 sm:w-14"
+            >
+              <ChevronDown className="h-7 w-7 text-accent-blue sm:h-8 sm:w-8" strokeWidth={2.5} aria-hidden />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Scrollable Content Spacer - Drives the sequence; touch-none so mobile scroll drives frames */}
-      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none" aria-hidden="true">
-        {/* Subtle scroll indicator */}
-        <motion.div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 sm:gap-2 opacity-30 sm:bottom-8"
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ opacity: scrollIndicatorOpacity }}
-        >
-          <span className="text-[8px] tracking-[0.5em] font-bold">SCROLL</span>
-          <div className="w-[1px] h-8 bg-accent-light/50" />
-        </motion.div>
-      </section>
+      <section ref={containerRef} className="h-[500vh] relative z-10 pointer-events-none" aria-hidden="true" />
 
       {/* Post-Sequence Content - Overlays the background */}
       <div className="relative z-20 mt-[-100vh]">
@@ -173,15 +227,31 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {[
                   { label: "Defense", brief: "Secure, reliable solutions for critical infrastructure and research." },
-                  { label: "Education", brief: "Labs, trainers, and equipment for universities and institutions." },
+                  { label: "Education", brief: "Labs, trainers, and equipment for universities and institutions.", href: "/education-career" },
                   { label: "Industrial", brief: "Heavy machinery, testing equipment, and smart automation." },
                   { label: "Commercial", brief: "uPVC, smart buildings, and integrated systems for modern spaces." },
-                ].map((sector, i) => (
-                  <div key={i} className="p-5 sm:p-6 border border-white/10 rounded-sm hover:border-accent-blue/40 transition-colors">
-                    <span className="text-[10px] font-bold tracking-widest text-accent-blue">{sector.label}</span>
-                    <p className="mt-2 sm:mt-3 text-accent-light/70 text-sm leading-relaxed">{sector.brief}</p>
-                  </div>
-                ))}
+                ].map((sector, i) => {
+                  const className =
+                    "p-5 sm:p-6 border border-white/10 rounded-sm hover:border-accent-blue/40 transition-colors block";
+                  const inner = (
+                    <>
+                      <span className="text-[10px] font-bold tracking-widest text-accent-blue">{sector.label}</span>
+                      <p className="mt-2 sm:mt-3 text-accent-light/70 text-sm leading-relaxed">{sector.brief}</p>
+                    </>
+                  );
+                  if ("href" in sector && sector.href && SHOW_ALL_PAGES) {
+                    return (
+                      <Link key={i} href={sector.href} className={className}>
+                        {inner}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <div key={i} className={className}>
+                      {inner}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>

@@ -3,6 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 const CORE_CAPABILITIES = [
@@ -153,6 +154,7 @@ export default function AboutPage() {
         </div>
       </section>
 
+
       {/* Wintech / ADO Partnership — card with clear subsections */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white/[0.02] border-y border-white/5">
         <div className="max-w-4xl mx-auto">
@@ -231,6 +233,36 @@ export default function AboutPage() {
             </div>
           </motion.div>
         </div>
+      </section>
+
+      {/* Wintech — exclusive dealer highlight */}
+      <section className="py-14 sm:py-16 px-4 sm:px-6 md:px-8 border-y border-white/5 bg-white/[0.02]">
+        <motion.div
+          {...fadeIn}
+          className="max-w-3xl mx-auto hud-border rounded-2xl p-8 sm:p-10 flex flex-col items-center text-center gap-6 sm:gap-8"
+        >
+          <span className="font-orbitron text-xs tracking-[0.4em] text-accent-blue">
+            AUTHORIZED PARTNER
+          </span>
+          <div className="flex w-full max-w-md items-center justify-center rounded-xl bg-white px-6 py-5 sm:px-10 sm:py-7 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
+            <Image
+              src="/images/logos/Wintech.png"
+              alt="Wintech"
+              width={360}
+              height={100}
+              className="h-auto w-full max-w-[300px] object-contain"
+            />
+          </div>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-accent-light leading-snug">
+            Exclusive dealer and importer in Pakistan
+          </p>
+          <Link
+            href="/upvc"
+            className="text-xs font-bold tracking-[0.25em] text-accent-blue hover:text-accent-light transition-colors"
+          >
+            EXPLORE uPVC SOLUTIONS →
+          </Link>
+        </motion.div>
       </section>
 
       {/* Core Capabilities — compact grid of items */}
