@@ -6,3 +6,8 @@ export const SHOW_ALL_PAGES = true;
 
 /** Height of the fixed navbar (px). Used so full-screen backgrounds start below it. */
 export const NAVBAR_HEIGHT_PX = 72;
+
+/** WhatsApp — display and wa.me link (Pakistan +92, drop leading 0). */
+export const WHATSAPP_DISPLAY = "0334-2222334";
+export const WHATSAPP_LABEL = `WhatsApp: ${WHATSAPP_DISPLAY}`;
+export const WHATSAPP_URL = "https://wa.me/923342222334";

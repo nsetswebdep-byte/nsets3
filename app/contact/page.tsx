@@ -2,8 +2,10 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppLink from "@/components/WhatsAppLink";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { WHATSAPP_LABEL } from "@/lib/siteConfig";
 
 const OFFICES = [
   {
@@ -81,6 +83,12 @@ export default function ContactPage() {
           </h1>
           <p className="text-accent-light/60 text-lg max-w-2xl mx-auto">
             Visit our offices, reach out by phone or email, or send a message — we’re here to help.
+          </p>
+          <p className="mt-6">
+            <WhatsAppLink
+              className="inline-flex items-center justify-center gap-2 text-accent-light/80 transition-colors hover:text-[#25D366]"
+              iconClassName="h-5 w-5 shrink-0"
+            />
           </p>
         </div>
       </section>
@@ -226,11 +234,11 @@ export default function ContactPage() {
       {/* CTA + Quick contact */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-6">PREFER TO CALL OR EMAIL?</h2>
+          <h2 className="text-2xl font-bold mb-6">PREFER TO CALL, EMAIL, OR WHATSAPP?</h2>
           <p className="text-accent-light/60 mb-8">
-            For sales and general inquiries, use the details above or reach us directly.
+            For sales and general inquiries, use the details above or reach us directly — including on {WHATSAPP_LABEL}.
           </p>
-          <div className="flex flex-wrap justify-center gap-8">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <a
               href="tel:0515916909"
               className="px-6 py-3 border border-accent-blue text-accent-blue hover:bg-accent-blue hover:text-white transition-colors text-sm font-bold tracking-widest"
@@ -243,6 +251,10 @@ export default function ContactPage() {
             >
               sales.nsets@gmail.com
             </a>
+            <WhatsAppLink
+              className="px-6 py-3 border border-[#25D366]/60 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors text-sm font-bold tracking-widest"
+              iconClassName="h-4 w-4 shrink-0"
+            />
           </div>
           <Link
             href="/"
