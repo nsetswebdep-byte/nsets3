@@ -10,48 +10,66 @@ import { generateLabEquipmentProfilePdf } from "@/lib/labEquipmentProfilePdf";
 
 const LAB_TOTAL_FRAMES = 242;
 
-/** Short in-page summaries for trainers (few main points); full detail stays in PDF */
-const PLC_TRAINER_SUMMARY = [
-  "Trainer Characteristics: Block Diagram, Inputs, Digital Inputs, Digital Inputs Wiring, Digital Outputs, Digital Output Wiring, Analog Inputs, Analog Input Wiring, Analog Outputs, Analog Outputs Wiring, Sample Connections.",
-  "Onboard PLC System Configuration: CPU components, PLC indicators, I/O indicators, Peripheral port, RS 232, Battery, Expansion Connector.",
-  "Onboard PLC Memory Map: Input/Output Relay, Internal Relay, Timers, Counters, Data registers, File registers, Index Registers.",
-];
-const POWER_ELECTRONICS_SUMMARY = [
-  "List Of Modules: DC Power Supply Module, SCR DIAC TRIAC IGBT Module, Uncontrolled Rectifiers Module, BUCK, BOOST, BUCK BOOST, FLY BACK, H BRIDGE, Controlled Rectifiers, POWER CONTROL, MOSFET DRIVER, SCR DRIVER, APPLICATION MODULE, LOAD Module.",
-];
-const TRANSFORMER_SUMMARY = [
-  "Main Aspects: Basic design parameters (Turn ratio calculation), Core material selection, Losses in different areas, Full load / No load calculations, Power input power output calculations, Wattage of the device, Design optimization, Lamination and air gap covering.",
-  "Features: Single-Phase Multiple turn Transformer 3A, 2 Digital Volt Meter, 2 Digital Current Meter, Resistive Load Bank with selector switch to vary Resistive Load, Main Isolator, Flexible to Used as 3-Phase Transformer Trainer.",
-  "Transformer is a major part of any linear power supply. To become familiar with this part here is a complete system in which complete transformer design is demonstrated with state of the art technology. We give complete basics as well as students at the end come up with a good working prototype.",
-];
-const DIGITAL_LOGIC_SUMMARY = [
-  "Main Aspects: Suitable for combinational logic, sequential logic, and microprocessor circuit experimentation and Design; ideal for learning digital logic basics; integrated training system with complete curriculum; comprehensive power supply, signal supply, and testing devices; large breadboard for expandability; use with TTL, CMOS, NMOS, PMOS and ECL circuits; all supplies equipped with overload protection.",
-  "Features: Power Switch with Inner Light Indicator; Input Power Supply 110/220V AC ±10% 50/60Hz & Fuse Protected; Fixed DC +5V, -5V, +12V, -12V (1A for +5V rail, 300mA others); Output overload Protection; Logic Switches with +5V and Inverted Output.",
-  "Digital Logic Design Trainer is a major part of Digital Lab — a comprehensive, self-contained system with power supply, signal generator, switches and displays installed on the main unit.",
-];
-const FPGA_SUMMARY = [
-  "Main Aspects: IC Xilinx Spartan-3E FPGA 500K or 1200K gates; Connectors: USB2 Port, Hirose FX2, Four 12-pin Pmod, VGA, PS/2, serial; Programming via Digilent USB2 (board power, programming, data transfers).",
-  "Features: 16MB fast SDRAM, 16MB Flash ROM; works with ISE/Webpack and EDK; 75 FPGA I/O's to expansion connectors; ESD and short-circuit protected; on-board eight LEDs, four-digit seven-segment display, four pushbuttons, eight slide switches; ships in DVD case with USB2 cable.",
-  "The Nexys-2 is a powerful digital system design platform built around a Xilinx Spartan 3E FPGA, suited to embedded processors like Microblaze™ — wide range of designs without additional components.",
-];
-const RENTAL_INVENTORY_SUMMARY = [
-  
-  "1. 40 GHz VNA",
-  "2. Spectrum Analyzer",
-  "3. 110 GHz VNA (Update in Process)",
-  "4. Probe Station (Update in Process)",
+/** R&D profile — right-side HUD summaries (from client trading / R&D profile) */
+const RND_INTRO_SUMMARY = [
+  "Innovative, reliable, and high-performance engineering solutions for industrial and educational sectors.",
+  "Practical engineering experience combined with modern technologies to address real-world challenges.",
+  "Strong focus on quality, efficiency, and continuous improvement in every project.",
 ];
 
-/** Scroll-reveal: title only for trainers; optional short summary below */
+const RND_MISSION_SUMMARY = [
+  "Professional standards and client expectations guide all R&D activities.",
+  "Supporting industries, laboratories, and technical institutions with advanced, dependable solutions.",
+  "Structured development process ensuring accuracy, performance, and reliability.",
+];
+
+const RND_CAPABILITIES_SUMMARY = [
+  "Electronic system design and development · Embedded systems engineering.",
+  "Industrial automation and control systems · PCB design and manufacturing.",
+  "Prototype development and testing · Engineering training and educational solutions.",
+];
+
+const RND_PRODUCTS_1_SUMMARY = [
+  "RF Power Amplifiers — efficient, stable designs for industrial and communication applications.",
+  "Development Boards & Kits — custom boards for learning, testing, and product development.",
+  "PCB Design & Manufacturing — schematic, layout, fabrication, and testing for high-quality circuits.",
+];
+
+const RND_PRODUCTS_2_SUMMARY = [
+  "Prototype Development — concept to functional product with testing and validation.",
+  "Electronic Components & Modules — supply and integration for engineering applications.",
+  "Embedded Systems — control, monitoring, and automation across industries.",
+  "Engineering Training Kits — practical systems for hands-on institutional learning.",
+];
+
+const RND_PRODUCTS_3_SUMMARY = [
+  "Automation & Control Systems — customized solutions for efficiency and reliability.",
+  "Industrial Problem Solutions — engineering-based answers for process and performance challenges.",
+  "Customized Engineering Solutions — tailored to each client's unique technical requirements.",
+];
+
+const RND_APPROACH_SUMMARY = [
+  "Requirement analysis and consultation · System design and engineering.",
+  "Development and integration · Testing and validation · Deployment and technical support.",
+  "Research and Planning → System Design and Simulation → PCB Development and Integration → Testing and Validation → Final Implementation and Support.",
+];
+
+const RND_COMMITMENT_SUMMARY = [
+  "Manufacturing and industrial operations · Educational institutions and universities.",
+  "Research and development organizations · Automation and engineering companies.",
+  "Committed to innovation, quality, and customer satisfaction — reliable, efficient, future-ready solutions.",
+];
+
+/** Scroll-reveal phases for R&D profile */
 const SCROLL_REVEAL_STEPS: { label: string; title: string; summary?: readonly string[] }[] = [
-  { label: "LAB & EQUIPMENT", title: "ELECTRONICS, TOOLS & RENTAL" },
-  { label: "INDUSTRIAL ELECTRONICS CATEGORY", title: "PLC TRAINER", summary: PLC_TRAINER_SUMMARY },
-  { label: "POWER ELECTRONICS CATEGORY", title: "Power Electronics Trainer", summary: POWER_ELECTRONICS_SUMMARY },
-  { label: "ELECTRIC MACHINES CATEGORY", title: "Basic Transformer Trainer", summary: TRANSFORMER_SUMMARY },
-  { label: "DIGITAL LOGIC DESIGN", title: "Digital Logic Design Trainer", summary: DIGITAL_LOGIC_SUMMARY },
-  { label: "FPGA BOARD", title: "FPGA Board (Field Programmable Gate Array)", summary: FPGA_SUMMARY },
-  { label: "EQUIPMENT & TOOLS", title: "Industrial · Educational Equipment & Tools" },
-  { label: "EQUIPMENT RENTAL SERVICES", title: "Available Equipment (Rental Inventory)", summary: RENTAL_INVENTORY_SUMMARY },
+  { label: "R & D PROFILE", title: "RESEARCH & DEVELOPMENT", summary: RND_INTRO_SUMMARY },
+  { label: "INTRODUCTION", title: "N-SETS R&D DIVISION", summary: RND_MISSION_SUMMARY },
+  { label: "CORE CAPABILITIES", title: "TECHNICAL SERVICES", summary: RND_CAPABILITIES_SUMMARY },
+  { label: "PRODUCTS & DEVELOPMENT", title: "RF & PCB SOLUTIONS", summary: RND_PRODUCTS_1_SUMMARY },
+  { label: "PRODUCTS & DEVELOPMENT", title: "PROTOTYPES & TRAINING", summary: RND_PRODUCTS_2_SUMMARY },
+  { label: "CUSTOMIZED SOLUTIONS", title: "AUTOMATION & INDUSTRIAL", summary: RND_PRODUCTS_3_SUMMARY },
+  { label: "OUR APPROACH", title: "DEVELOPMENT PROCESS", summary: RND_APPROACH_SUMMARY },
+  { label: "OUR COMMITMENT", title: "INDUSTRIES WE SERVE", summary: RND_COMMITMENT_SUMMARY },
 ];
 
 const PROFILE_PDF_FILENAME = "Lab-Equipment-Profile.pdf";
@@ -163,7 +181,7 @@ function LabEquipmentOverlay({ scrollYProgress }: { scrollYProgress: MotionValue
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-16 lg:pl-20 lg:pr-20 xl:pl-24 xl:pr-24">
       {LAB_PHASES.map((phase, index) => (
         <LabPhaseBlock
-          key={phase.title}
+          key={`${phase.label}-${index}`}
           phase={phase}
           index={index}
           scrollYProgress={scrollYProgress}
