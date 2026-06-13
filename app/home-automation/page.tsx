@@ -10,6 +10,7 @@ import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
 import { NAVBAR_HEIGHT_PX } from "@/lib/siteConfig";
+import { EXPERIENCE_PRELOAD } from "@/data/buildingData";
 
 const CONTROL_CARDS = [
   {
@@ -114,8 +115,9 @@ export default function HomeAutomationPage() {
             darkenOverlayOpacity={0.2}
             showLoadingOverlay={false}
             preloadBeforeShow
-            minDisplayTimeMs={6000}
-            targetLoadRatio={0.95}
+            minDisplayTimeMs={EXPERIENCE_PRELOAD.minDisplayTimeMs}
+            targetLoadRatio={EXPERIENCE_PRELOAD.targetLoadRatio}
+            minFramesToStart={EXPERIENCE_PRELOAD.minFramesToStart}
           />
         </div>
         {/* Text overlay pinned over the sequence, phase-based like home page */}

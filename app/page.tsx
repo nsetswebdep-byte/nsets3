@@ -11,7 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import BuildingExperience from "@/components/BuildingExperience";
-import { HOME_FRAME_INTERVAL_S, HOME_WELCOME_HOLD_MS, TOTAL_FRAMES } from "@/data/buildingData";
+import { EXPERIENCE_PRELOAD, HOME_FRAME_INTERVAL_S, HOME_WELCOME_HOLD_MS, TOTAL_FRAMES } from "@/data/buildingData";
 import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
 
 export default function Home() {
@@ -63,8 +63,9 @@ export default function Home() {
             darkenOverlayOpacity={0.20}
             showLoadingOverlay={false}
             preloadBeforeShow
-            minDisplayTimeMs={6000}
-            targetLoadRatio={0.95}
+            minDisplayTimeMs={EXPERIENCE_PRELOAD.minDisplayTimeMs}
+            targetLoadRatio={EXPERIENCE_PRELOAD.targetLoadRatio}
+            minFramesToStart={EXPERIENCE_PRELOAD.minFramesToStart}
             onExperienceReady={onExperienceReady}
           />
         </div>

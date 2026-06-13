@@ -23,8 +23,10 @@ interface Props {
   preloadBeforeShow?: boolean;
   /** Minimum time (ms) to show the preload screen, e.g. 5000–10000. Only used when preloadBeforeShow is true. */
   minDisplayTimeMs?: number;
-  /** Consider ready when this ratio of frames are loaded (0–1), e.g. 0.95. Only used when preloadBeforeShow is true. */
+  /** Consider ready when this ratio of frames are loaded (0–1). Combined with minFramesToStart. */
   targetLoadRatio?: number;
+  /** Minimum frames that must load before showing (e.g. 48 for intro). */
+  minFramesToStart?: number;
   /** Called once when preload finishes and the experience is shown. */
   onExperienceReady?: () => void;
 }
@@ -40,8 +42,9 @@ export default function BuildingScrollCanvas({
   showLoadingOverlay = true,
   darkenOverlayOpacity = 0,
   preloadBeforeShow = false,
-  minDisplayTimeMs = 4000,
-  targetLoadRatio = 0.95,
+  minDisplayTimeMs = 1200,
+  targetLoadRatio = 0.2,
+  minFramesToStart = 48,
   onExperienceReady,
 }: Props) {
   const EAGER_FRAME_COUNT = 60;
@@ -64,7 +67,10 @@ export default function BuildingScrollCanvas({
   // Poll until both min time and frame count are met (effect only runs on dep change, so we need a timer)
   useEffect(() => {
     if (!preloadBeforeShow || isExperienceReady) return;
-    const minLoaded = Math.ceil(totalFrames * targetLoadRatio);
+    const minLoaded = Math.min(
+      totalFrames,
+      Math.max(minFramesToStart, Math.ceil(totalFrames * targetLoadRatio))
+    );
     const check = () => {
       const currentLoaded = loadedCountRef.current;
       const elapsed = Date.now() - startTimeRef.current;
@@ -73,9 +79,9 @@ export default function BuildingScrollCanvas({
       }
     };
     check();
-    const interval = setInterval(check, 300);
+    const interval = setInterval(check, 150);
     return () => clearInterval(interval);
-  }, [preloadBeforeShow, isExperienceReady, totalFrames, targetLoadRatio, minDisplayTimeMs]);
+  }, [preloadBeforeShow, isExperienceReady, totalFrames, targetLoadRatio, minDisplayTimeMs, minFramesToStart]);
 
   const onReadyRef = useRef(onExperienceReady);
   onReadyRef.current = onExperienceReady;
@@ -108,6 +114,9 @@ export default function BuildingScrollCanvas({
       const num = frameIndexOneBased ? i + 1 : i;
       const frameIndex = num.toString().padStart(3, "0");
       const img = new Image();
+      if (i < 60) {
+        img.fetchPriority = "high";
+      }
       img.onload = () => {
         if (cancelled) return;
         setLoadedCount((prev) => Math.min(totalFrames, prev + 1));
@@ -121,16 +130,18 @@ export default function BuildingScrollCanvas({
     };
 
     if (preloadBeforeShow) {
-      const BATCH = 48;
-      let idx = 0;
+      const PRIORITY = Math.min(60, totalFrames);
+      for (let i = 0; i < PRIORITY; i++) loadFrame(i);
+      const BATCH = 64;
+      let idx = PRIORITY;
       const schedule = () => {
         if (cancelled) return;
         const end = Math.min(idx + BATCH, totalFrames);
         for (let i = idx; i < end; i++) loadFrame(i);
         idx = end;
-        if (idx < totalFrames) setTimeout(schedule, 30);
+        if (idx < totalFrames) setTimeout(schedule, 16);
       };
-      schedule();
+      if (idx < totalFrames) schedule();
       return () => { cancelled = true; };
     }
 

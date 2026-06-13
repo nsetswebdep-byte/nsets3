@@ -7,6 +7,7 @@ import { motion, useTransform, type MotionValue } from "framer-motion";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import { useFrameScrollProgress } from "@/lib/useFrameScrollProgress";
 import { generateLabEquipmentProfilePdf } from "@/lib/labEquipmentProfilePdf";
+import { EXPERIENCE_PRELOAD } from "@/data/buildingData";
 
 const LAB_TOTAL_FRAMES = 242;
 
@@ -139,8 +140,9 @@ export default function LabEquipmentPage() {
             darkenOverlayOpacity={0.3}
             showLoadingOverlay={false}
             preloadBeforeShow
-            minDisplayTimeMs={6000}
-            targetLoadRatio={0.95}
+            minDisplayTimeMs={EXPERIENCE_PRELOAD.minDisplayTimeMs}
+            targetLoadRatio={EXPERIENCE_PRELOAD.targetLoadRatio}
+            minFramesToStart={EXPERIENCE_PRELOAD.minFramesToStart}
           />
         </div>
         {/* Bottom-left phase titles animating with scroll */}
