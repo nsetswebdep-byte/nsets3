@@ -14,11 +14,11 @@ type FooterLink = {
 const ALL_FOOTER_LINKS: FooterLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "Trading", href: "/trading" },
-  { label: "Education & Career", href: "/education-career" },
+  { label: "UPVC", href: "/upvc" },
   { label: "Home Automation", href: "/home-automation" },
-  { label: "uPVC", href: "/upvc" },
+  { label: "Trading", href: "/trading" },
   { label: "R & D", href: "/lab-equipment" },
+  { label: "Education & Career", href: "/education-career" },
   { label: "Contact", href: "/contact" },
 ];
 
