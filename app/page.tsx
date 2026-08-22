@@ -12,9 +12,15 @@ import Footer from "@/components/Footer";
 import BuildingScrollCanvas from "@/components/BuildingScrollCanvas";
 import BuildingExperience from "@/components/BuildingExperience";
 import { EXPERIENCE_PRELOAD, HOME_FRAME_INTERVAL_S, HOME_WELCOME_HOLD_MS, TOTAL_FRAMES } from "@/data/buildingData";
-import { SHOW_ALL_PAGES } from "@/lib/siteConfig";
+import { SHOW_ALL_PAGES, SITE_DOWN_MODE } from "@/lib/siteConfig";
+import SiteDownPage from "@/components/SiteDownPage";
 
 export default function Home() {
+  if (SITE_DOWN_MODE) return <SiteDownPage />;
+  return <HomePage />;
+}
+
+function HomePage() {
   const containerRef = useRef<HTMLElement>(null);
   const [experienceReady, setExperienceReady] = useState(false);
   const onExperienceReady = useCallback(() => setExperienceReady(true), []);

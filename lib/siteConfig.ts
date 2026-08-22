@@ -4,6 +4,12 @@
  */
 export const SHOW_ALL_PAGES = true;
 
+/**
+ * When true, the home page (/) shows a “site unavailable” screen instead of the full experience.
+ * Set back to false and redeploy to restore the normal homepage.
+ */
+export const SITE_DOWN_MODE = true;
+
 /** Height of the fixed navbar (px). Used so full-screen backgrounds start below it. */
 export const NAVBAR_HEIGHT_PX = 72;
 
