@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import SiteDownPage from "@/components/SiteDownPage";
+import { SITE_DOWN_MODE } from "@/lib/siteConfig";
 import "./globals.css";
 
 const montserrat = localFont({
@@ -35,8 +37,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} antialiased bg-[#0b0b0b]`}>
-        {children}
+      <body className={SITE_DOWN_MODE ? undefined : `${montserrat.variable} antialiased bg-[#0b0b0b]`}>
+        {SITE_DOWN_MODE ? <SiteDownPage /> : children}
       </body>
     </html>
   );

@@ -5,8 +5,8 @@
 export const SHOW_ALL_PAGES = true;
 
 /**
- * When true, the home page (/) shows a “site unavailable” screen instead of the full experience.
- * Set back to false and redeploy to restore the normal homepage.
+ * When true, every page shows a plain 503 error screen (no nav, no content).
+ * Set to false and redeploy to restore the full site.
  */
 export const SITE_DOWN_MODE = true;
 
