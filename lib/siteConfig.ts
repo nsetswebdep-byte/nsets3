@@ -8,7 +8,7 @@ export const SHOW_ALL_PAGES = true;
  * When true, every page shows a plain 503 error screen (no nav, no content).
  * Set to false and redeploy to restore the full site.
  */
-export const SITE_DOWN_MODE = true;
+export const SITE_DOWN_MODE = false;
 
 /** Height of the fixed navbar (px). Used so full-screen backgrounds start below it. */
 export const NAVBAR_HEIGHT_PX = 72;
